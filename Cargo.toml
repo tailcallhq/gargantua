@@ -1,0 +1,7 @@
+[workspace]
+resolver = "2"
+members = ["blueprint"]
+
+[workspace.dependencies]
+derive_setters = "0.1.6"
+serde = "1.0.210"

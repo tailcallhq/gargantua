@@ -1,0 +1,10 @@
+[package]
+name = "valid"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+derive_setters.workspace = true
+
+[dev-dependencies]
+pretty_assertions.workspace = true

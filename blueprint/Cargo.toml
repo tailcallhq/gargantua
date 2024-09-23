@@ -4,7 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+async-graphql-parser = "7.0.9"
 derive_setters.workspace = true
-serde.workspace = true
 serde.features = ["derive"]
+serde.workspace = true
 serde_json.workspace = true
+valid = { path = "../valid" }

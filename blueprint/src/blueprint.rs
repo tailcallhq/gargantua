@@ -1,12 +1,20 @@
 use std::collections::{BTreeMap, BTreeSet};
 
+use async_graphql_parser::types::ServiceDocument;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use valid::Valid;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Blueprint {
     pub definitions: Vec<Definition>,
     pub schema: SchemaDefinition,
+}
+
+impl Blueprint {
+    pub fn parse(doc: ServiceDocument) -> Valid<Blueprint, String> {
+        super::parse::parse(doc)
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

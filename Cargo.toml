@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["blueprint", "valid"]
+members = ["blueprint", "valid", "query_plan"]
 
 [workspace.dependencies]
 derive_setters = "0.1.6"

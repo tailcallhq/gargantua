@@ -1,0 +1,10 @@
+[package]
+name = "query_plan"
+version = "0.1.0"
+edition = "2021"
+
+
+[dependencies]
+blueprint = { path = "../blueprint" }
+serde.workspace = true
+serde_json.workspace = true

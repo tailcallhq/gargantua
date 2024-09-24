@@ -9,6 +9,16 @@ use valid::Valid;
 pub struct Blueprint {
     pub definitions: Vec<Definition>,
     pub schema: SchemaDefinition,
+    pub graphs: Vec<JoinGraph>,
+}
+
+// TODO: convert to a URL type
+type Url = String;
+
+#[derive(Clone, Debug, Serialize, Deserialize, Ord, PartialOrd, Eq, PartialEq)]
+pub struct JoinGraph {
+    pub name: String,
+    pub url: Url,
 }
 
 impl Blueprint {
@@ -40,6 +50,7 @@ pub struct ObjectTypeDefinition {
     pub fields: Vec<FieldDefinition>,
     pub description: Option<String>,
     pub implements: BTreeSet<String>,
+    pub join_type: BTreeSet<JoinGraph>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

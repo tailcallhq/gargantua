@@ -5,6 +5,8 @@ edition = "2021"
 
 [dependencies]
 async-graphql-parser = "7.0.9"
+async-graphql-value = "7.0.9"
+url = { version = "2.5.2", features = ["serde"] }
 derive_setters.workspace = true
 serde.features = ["derive"]
 serde.workspace = true

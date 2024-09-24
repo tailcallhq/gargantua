@@ -10,7 +10,7 @@ pub struct Blueprint {
     pub definitions: Vec<Definition>,
     pub schema: SchemaDefinition,
     pub directives: Vec<DirectiveDefinition>,
-    pub graphs: Vec<JoinGraph>,
+    pub join_graphs: Vec<JoinGraph>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, Ord, PartialOrd, Eq, PartialEq)]
@@ -43,7 +43,7 @@ pub struct InterfaceTypeDefinition {
     pub name: String,
     pub fields: Vec<FieldDefinition>,
     pub description: Option<String>,
-    pub join_type: Vec<JoinType>,
+    pub join_types: Vec<JoinType>,
     pub join_implements: Vec<JoinImplements>,
 }
 
@@ -53,7 +53,7 @@ pub struct ObjectTypeDefinition {
     pub fields: Vec<FieldDefinition>,
     pub description: Option<String>,
     pub implements: BTreeSet<String>,
-    pub join_type: Vec<JoinType>,
+    pub join_types: Vec<JoinType>,
     pub join_implements: Vec<JoinImplements>,
 }
 
@@ -62,7 +62,7 @@ pub struct InputObjectTypeDefinition {
     pub name: String,
     pub fields: Vec<InputFieldDefinition>,
     pub description: Option<String>,
-    pub join_type: Vec<JoinType>,
+    pub join_types: Vec<JoinType>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -71,7 +71,7 @@ pub struct EnumTypeDefinition {
     pub directives: Vec<Directive>,
     pub description: Option<String>,
     pub enum_values: Vec<EnumValueDefinition>,
-    pub join_type: Vec<JoinType>,
+    pub join_types: Vec<JoinType>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -79,7 +79,7 @@ pub struct EnumValueDefinition {
     pub description: Option<String>,
     pub name: String,
     pub directives: Vec<Directive>,
-    pub join_enum: Vec<GraphId>
+    pub join_enums: Vec<GraphId>
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -96,7 +96,7 @@ pub struct InputFieldDefinition {
     pub of_type: Type,
     pub default_value: Option<Value>,
     pub description: Option<String>,
-    pub join_field: Vec<JoinField>,
+    pub join_fields: Vec<JoinField>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -106,13 +106,13 @@ pub struct FieldDefinition {
     pub of_type: Type,
     pub directives: Vec<Directive>,
     pub description: Option<String>,
-    pub join_field: Vec<JoinField>
+    pub join_fields: Vec<JoinField>
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Directive {
     pub name: String,
-    pub arguments: BTreeMap<String, Value>,
+    pub arguments: Value,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -129,7 +129,7 @@ pub struct ScalarTypeDefinition {
     pub name: String,
     pub directives: Vec<Directive>,
     pub description: Option<String>,
-    pub join_type: Vec<JoinType>,
+    pub join_types: Vec<JoinType>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -138,8 +138,8 @@ pub struct UnionTypeDefinition {
     pub directives: Vec<Directive>,
     pub description: Option<String>,
     pub types: BTreeSet<String>,
-    pub join_type: Vec<JoinType>,
-    pub join_union: Vec<JoinUnion>,
+    pub join_types: Vec<JoinType>,
+    pub join_unions: Vec<JoinUnion>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

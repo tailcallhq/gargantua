@@ -1,0 +1,1301 @@
+---
+source: blueprint/src/lib.rs
+expression: blueprint
+---
+{
+  "definitions": [
+    {
+      "Object": {
+        "name": "Picture",
+        "fields": [
+          {
+            "name": "url",
+            "args": [],
+            "of_type": {
+              "Named": {
+                "name": "String",
+                "required": true
+              }
+            },
+            "directives": [],
+            "description": null,
+            "join_fields": []
+          },
+          {
+            "name": "width",
+            "args": [],
+            "of_type": {
+              "Named": {
+                "name": "Int",
+                "required": true
+              }
+            },
+            "directives": [],
+            "description": null,
+            "join_fields": []
+          },
+          {
+            "name": "height",
+            "args": [],
+            "of_type": {
+              "Named": {
+                "name": "Int",
+                "required": true
+              }
+            },
+            "directives": [],
+            "description": null,
+            "join_fields": []
+          },
+          {
+            "name": "altText",
+            "args": [],
+            "of_type": {
+              "Named": {
+                "name": "String",
+                "required": true
+              }
+            },
+            "directives": [
+              {
+                "name": "inaccessible",
+                "arguments": {}
+              },
+              {
+                "name": "join__field",
+                "arguments": {
+                  "graph": "REVIEWS"
+                }
+              }
+            ],
+            "description": null,
+            "join_fields": [
+              {
+                "graph": "REVIEWS",
+                "requires": null,
+                "provides": null,
+                "type": null,
+                "external": null,
+                "override": null,
+                "used_overridden": null
+              }
+            ]
+          }
+        ],
+        "description": null,
+        "implements": [],
+        "join_types": [
+          {
+            "graph": "ACCOUNTS",
+            "key": null,
+            "extension": true,
+            "resolvable": true,
+            "is_interface_object": true
+          },
+          {
+            "graph": "REVIEWS",
+            "key": null,
+            "extension": true,
+            "resolvable": true,
+            "is_interface_object": true
+          }
+        ],
+        "join_implements": []
+      }
+    },
+    {
+      "Object": {
+        "name": "Product",
+        "fields": [
+          {
+            "name": "upc",
+            "args": [],
+            "of_type": {
+              "Named": {
+                "name": "String",
+                "required": true
+              }
+            },
+            "directives": [],
+            "description": null,
+            "join_fields": []
+          },
+          {
+            "name": "name",
+            "args": [],
+            "of_type": {
+              "Named": {
+                "name": "String",
+                "required": true
+              }
+            },
+            "directives": [
+              {
+                "name": "join__field",
+                "arguments": {
+                  "graph": "PRODUCTS"
+                }
+              }
+            ],
+            "description": null,
+            "join_fields": [
+              {
+                "graph": "PRODUCTS",
+                "requires": null,
+                "provides": null,
+                "type": null,
+                "external": null,
+                "override": null,
+                "used_overridden": null
+              }
+            ]
+          },
+          {
+            "name": "price",
+            "args": [],
+            "of_type": {
+              "Named": {
+                "name": "Int",
+                "required": true
+              }
+            },
+            "directives": [
+              {
+                "name": "join__field",
+                "arguments": {
+                  "graph": "PRODUCTS"
+                }
+              },
+              {
+                "name": "join__field",
+                "arguments": {
+                  "external": true,
+                  "graph": "REVIEWS"
+                }
+              }
+            ],
+            "description": null,
+            "join_fields": [
+              {
+                "graph": "PRODUCTS",
+                "requires": null,
+                "provides": null,
+                "type": null,
+                "external": null,
+                "override": null,
+                "used_overridden": null
+              },
+              {
+                "graph": "REVIEWS",
+                "requires": null,
+                "provides": null,
+                "type": null,
+                "external": true,
+                "override": null,
+                "used_overridden": null
+              }
+            ]
+          },
+          {
+            "name": "reviews",
+            "args": [],
+            "of_type": {
+              "List": {
+                "of_type": {
+                  "Named": {
+                    "name": "Review",
+                    "required": true
+                  }
+                },
+                "non_null": true
+              }
+            },
+            "directives": [
+              {
+                "name": "join__field",
+                "arguments": {
+                  "graph": "REVIEWS"
+                }
+              }
+            ],
+            "description": null,
+            "join_fields": [
+              {
+                "graph": "REVIEWS",
+                "requires": null,
+                "provides": null,
+                "type": null,
+                "external": null,
+                "override": null,
+                "used_overridden": null
+              }
+            ]
+          }
+        ],
+        "description": null,
+        "implements": [],
+        "join_types": [
+          {
+            "graph": "PRODUCTS",
+            "key": "upc",
+            "extension": true,
+            "resolvable": true,
+            "is_interface_object": true
+          },
+          {
+            "graph": "REVIEWS",
+            "key": "upc",
+            "extension": true,
+            "resolvable": true,
+            "is_interface_object": true
+          }
+        ],
+        "join_implements": []
+      }
+    },
+    {
+      "Object": {
+        "name": "Query",
+        "fields": [
+          {
+            "name": "me",
+            "args": [],
+            "of_type": {
+              "Named": {
+                "name": "User",
+                "required": true
+              }
+            },
+            "directives": [
+              {
+                "name": "join__field",
+                "arguments": {
+                  "graph": "ACCOUNTS"
+                }
+              }
+            ],
+            "description": null,
+            "join_fields": [
+              {
+                "graph": "ACCOUNTS",
+                "requires": null,
+                "provides": null,
+                "type": null,
+                "external": null,
+                "override": null,
+                "used_overridden": null
+              }
+            ]
+          },
+          {
+            "name": "topProducts",
+            "args": [],
+            "of_type": {
+              "List": {
+                "of_type": {
+                  "Named": {
+                    "name": "Product",
+                    "required": true
+                  }
+                },
+                "non_null": true
+              }
+            },
+            "directives": [
+              {
+                "name": "join__field",
+                "arguments": {
+                  "graph": "PRODUCTS"
+                }
+              }
+            ],
+            "description": null,
+            "join_fields": [
+              {
+                "graph": "PRODUCTS",
+                "requires": null,
+                "provides": null,
+                "type": null,
+                "external": null,
+                "override": null,
+                "used_overridden": null
+              }
+            ]
+          }
+        ],
+        "description": null,
+        "implements": [],
+        "join_types": [
+          {
+            "graph": "ACCOUNTS",
+            "key": null,
+            "extension": true,
+            "resolvable": true,
+            "is_interface_object": true
+          },
+          {
+            "graph": "PRODUCTS",
+            "key": null,
+            "extension": true,
+            "resolvable": true,
+            "is_interface_object": true
+          },
+          {
+            "graph": "REVIEWS",
+            "key": null,
+            "extension": true,
+            "resolvable": true,
+            "is_interface_object": true
+          }
+        ],
+        "join_implements": []
+      }
+    },
+    {
+      "Object": {
+        "name": "Review",
+        "fields": [
+          {
+            "name": "id",
+            "args": [],
+            "of_type": {
+              "Named": {
+                "name": "ID",
+                "required": true
+              }
+            },
+            "directives": [],
+            "description": null,
+            "join_fields": []
+          },
+          {
+            "name": "body",
+            "args": [],
+            "of_type": {
+              "Named": {
+                "name": "String",
+                "required": true
+              }
+            },
+            "directives": [],
+            "description": null,
+            "join_fields": []
+          },
+          {
+            "name": "pictures",
+            "args": [],
+            "of_type": {
+              "List": {
+                "of_type": {
+                  "Named": {
+                    "name": "Picture",
+                    "required": true
+                  }
+                },
+                "non_null": true
+              }
+            },
+            "directives": [],
+            "description": null,
+            "join_fields": []
+          },
+          {
+            "name": "product",
+            "args": [],
+            "of_type": {
+              "Named": {
+                "name": "Product",
+                "required": true
+              }
+            },
+            "directives": [
+              {
+                "name": "join__field",
+                "arguments": {
+                  "graph": "REVIEWS",
+                  "provides": "price"
+                }
+              }
+            ],
+            "description": null,
+            "join_fields": [
+              {
+                "graph": "REVIEWS",
+                "requires": null,
+                "provides": "price",
+                "type": null,
+                "external": null,
+                "override": null,
+                "used_overridden": null
+              }
+            ]
+          },
+          {
+            "name": "author",
+            "args": [],
+            "of_type": {
+              "Named": {
+                "name": "User",
+                "required": true
+              }
+            },
+            "directives": [],
+            "description": null,
+            "join_fields": []
+          }
+        ],
+        "description": null,
+        "implements": [],
+        "join_types": [
+          {
+            "graph": "REVIEWS",
+            "key": null,
+            "extension": true,
+            "resolvable": true,
+            "is_interface_object": true
+          }
+        ],
+        "join_implements": []
+      }
+    },
+    {
+      "Enum": {
+        "name": "Trustworthiness",
+        "directives": [
+          {
+            "name": "join__type",
+            "arguments": {
+              "graph": "REVIEWS"
+            }
+          }
+        ],
+        "description": null,
+        "enum_values": [
+          {
+            "description": null,
+            "name": "REALLY_TRUSTED",
+            "directives": [
+              {
+                "name": "join__enumValue",
+                "arguments": {
+                  "graph": "REVIEWS"
+                }
+              }
+            ],
+            "join_enums": [
+              {
+                "graph": "REVIEWS"
+              }
+            ]
+          },
+          {
+            "description": null,
+            "name": "KINDA_TRUSTED",
+            "directives": [
+              {
+                "name": "join__enumValue",
+                "arguments": {
+                  "graph": "REVIEWS"
+                }
+              }
+            ],
+            "join_enums": [
+              {
+                "graph": "REVIEWS"
+              }
+            ]
+          },
+          {
+            "description": null,
+            "name": "NOT_TRUSTED",
+            "directives": [
+              {
+                "name": "join__enumValue",
+                "arguments": {
+                  "graph": "REVIEWS"
+                }
+              }
+            ],
+            "join_enums": [
+              {
+                "graph": "REVIEWS"
+              }
+            ]
+          }
+        ],
+        "join_types": [
+          {
+            "graph": "REVIEWS",
+            "key": null,
+            "extension": true,
+            "resolvable": true,
+            "is_interface_object": true
+          }
+        ]
+      }
+    },
+    {
+      "Object": {
+        "name": "User",
+        "fields": [
+          {
+            "name": "id",
+            "args": [],
+            "of_type": {
+              "Named": {
+                "name": "ID",
+                "required": true
+              }
+            },
+            "directives": [],
+            "description": null,
+            "join_fields": []
+          },
+          {
+            "name": "username",
+            "args": [],
+            "of_type": {
+              "Named": {
+                "name": "String",
+                "required": true
+              }
+            },
+            "directives": [
+              {
+                "name": "join__field",
+                "arguments": {
+                  "graph": "ACCOUNTS"
+                }
+              }
+            ],
+            "description": null,
+            "join_fields": [
+              {
+                "graph": "ACCOUNTS",
+                "requires": null,
+                "provides": null,
+                "type": null,
+                "external": null,
+                "override": null,
+                "used_overridden": null
+              }
+            ]
+          },
+          {
+            "name": "profilePicture",
+            "args": [],
+            "of_type": {
+              "Named": {
+                "name": "Picture",
+                "required": false
+              }
+            },
+            "directives": [
+              {
+                "name": "join__field",
+                "arguments": {
+                  "graph": "ACCOUNTS"
+                }
+              }
+            ],
+            "description": null,
+            "join_fields": [
+              {
+                "graph": "ACCOUNTS",
+                "requires": null,
+                "provides": null,
+                "type": null,
+                "external": null,
+                "override": null,
+                "used_overridden": null
+              }
+            ]
+          },
+          {
+            "name": "reviewCount",
+            "args": [],
+            "of_type": {
+              "Named": {
+                "name": "Int",
+                "required": true
+              }
+            },
+            "directives": [
+              {
+                "name": "join__field",
+                "arguments": {
+                  "graph": "REVIEWS",
+                  "override": "accounts"
+                }
+              }
+            ],
+            "description": "This used to be part of this subgraph, but is now being overridden from\n`reviews`",
+            "join_fields": [
+              {
+                "graph": "REVIEWS",
+                "requires": null,
+                "provides": null,
+                "type": null,
+                "external": null,
+                "override": "accounts",
+                "used_overridden": null
+              }
+            ]
+          },
+          {
+            "name": "joinedTimestamp",
+            "args": [],
+            "of_type": {
+              "Named": {
+                "name": "Int",
+                "required": true
+              }
+            },
+            "directives": [
+              {
+                "name": "join__field",
+                "arguments": {
+                  "graph": "ACCOUNTS"
+                }
+              },
+              {
+                "name": "join__field",
+                "arguments": {
+                  "external": true,
+                  "graph": "REVIEWS"
+                }
+              }
+            ],
+            "description": null,
+            "join_fields": [
+              {
+                "graph": "ACCOUNTS",
+                "requires": null,
+                "provides": null,
+                "type": null,
+                "external": null,
+                "override": null,
+                "used_overridden": null
+              },
+              {
+                "graph": "REVIEWS",
+                "requires": null,
+                "provides": null,
+                "type": null,
+                "external": true,
+                "override": null,
+                "used_overridden": null
+              }
+            ]
+          },
+          {
+            "name": "reviews",
+            "args": [],
+            "of_type": {
+              "List": {
+                "of_type": {
+                  "Named": {
+                    "name": "Review",
+                    "required": true
+                  }
+                },
+                "non_null": true
+              }
+            },
+            "directives": [
+              {
+                "name": "join__field",
+                "arguments": {
+                  "graph": "REVIEWS"
+                }
+              }
+            ],
+            "description": null,
+            "join_fields": [
+              {
+                "graph": "REVIEWS",
+                "requires": null,
+                "provides": null,
+                "type": null,
+                "external": null,
+                "override": null,
+                "used_overridden": null
+              }
+            ]
+          },
+          {
+            "name": "trustworthiness",
+            "args": [],
+            "of_type": {
+              "Named": {
+                "name": "Trustworthiness",
+                "required": true
+              }
+            },
+            "directives": [
+              {
+                "name": "join__field",
+                "arguments": {
+                  "graph": "REVIEWS",
+                  "requires": "joinedTimestamp"
+                }
+              }
+            ],
+            "description": null,
+            "join_fields": [
+              {
+                "graph": "REVIEWS",
+                "requires": "joinedTimestamp",
+                "provides": null,
+                "type": null,
+                "external": null,
+                "override": null,
+                "used_overridden": null
+              }
+            ]
+          }
+        ],
+        "description": null,
+        "implements": [],
+        "join_types": [
+          {
+            "graph": "ACCOUNTS",
+            "key": "id",
+            "extension": true,
+            "resolvable": true,
+            "is_interface_object": true
+          },
+          {
+            "graph": "REVIEWS",
+            "key": "id",
+            "extension": true,
+            "resolvable": true,
+            "is_interface_object": true
+          }
+        ],
+        "join_implements": []
+      }
+    },
+    {
+      "Scalar": {
+        "name": "join__FieldSet",
+        "directives": [],
+        "description": null,
+        "join_types": []
+      }
+    },
+    {
+      "Enum": {
+        "name": "join__Graph",
+        "directives": [],
+        "description": null,
+        "enum_values": [
+          {
+            "description": null,
+            "name": "ACCOUNTS",
+            "directives": [
+              {
+                "name": "join__graph",
+                "arguments": {
+                  "name": "accounts",
+                  "url": "http://localhost:4001"
+                }
+              }
+            ],
+            "join_enums": []
+          },
+          {
+            "description": null,
+            "name": "PRODUCTS",
+            "directives": [
+              {
+                "name": "join__graph",
+                "arguments": {
+                  "name": "products",
+                  "url": "http://localhost:4002"
+                }
+              }
+            ],
+            "join_enums": []
+          },
+          {
+            "description": null,
+            "name": "REVIEWS",
+            "directives": [
+              {
+                "name": "join__graph",
+                "arguments": {
+                  "name": "reviews",
+                  "url": "http://localhost:4003"
+                }
+              }
+            ],
+            "join_enums": []
+          }
+        ],
+        "join_types": []
+      }
+    },
+    {
+      "Scalar": {
+        "name": "link__Import",
+        "directives": [],
+        "description": null,
+        "join_types": []
+      }
+    },
+    {
+      "Enum": {
+        "name": "link__Purpose",
+        "directives": [],
+        "description": null,
+        "enum_values": [
+          {
+            "description": "`SECURITY` features provide metadata necessary to securely resolve fields.",
+            "name": "SECURITY",
+            "directives": [],
+            "join_enums": []
+          },
+          {
+            "description": "`EXECUTION` features provide metadata necessary for operation execution.",
+            "name": "EXECUTION",
+            "directives": [],
+            "join_enums": []
+          }
+        ],
+        "join_types": []
+      }
+    }
+  ],
+  "schema": {
+    "query": "Query",
+    "mutation": null,
+    "subscription": null,
+    "directives": [
+      {
+        "name": "link",
+        "arguments": {
+          "url": "https://specs.apollo.dev/link/v1.0"
+        }
+      },
+      {
+        "name": "link",
+        "arguments": {
+          "for": "EXECUTION",
+          "url": "https://specs.apollo.dev/join/v0.3"
+        }
+      },
+      {
+        "name": "link",
+        "arguments": {
+          "for": "SECURITY",
+          "import": [
+            "@inaccessible"
+          ],
+          "url": "https://specs.apollo.dev/inaccessible/v0.2"
+        }
+      }
+    ]
+  },
+  "directives": [
+    {
+      "name": "inaccessible",
+      "description": null,
+      "arguments": [],
+      "repeatable": true,
+      "locations": [
+        "FieldDefinition",
+        "Object",
+        "Interface",
+        "Union",
+        "ArgumentDefinition",
+        "Scalar",
+        "Enum",
+        "EnumValue",
+        "InputObject",
+        "InputFieldDefinition"
+      ]
+    },
+    {
+      "name": "join__enumValue",
+      "description": null,
+      "arguments": [
+        {
+          "name": "graph",
+          "of_type": {
+            "Named": {
+              "name": "join__Graph",
+              "required": true
+            }
+          },
+          "default_value": null,
+          "description": null,
+          "join_fields": []
+        }
+      ],
+      "repeatable": true,
+      "locations": [
+        "EnumValue"
+      ]
+    },
+    {
+      "name": "join__field",
+      "description": null,
+      "arguments": [
+        {
+          "name": "graph",
+          "of_type": {
+            "Named": {
+              "name": "join__Graph",
+              "required": false
+            }
+          },
+          "default_value": null,
+          "description": null,
+          "join_fields": []
+        },
+        {
+          "name": "requires",
+          "of_type": {
+            "Named": {
+              "name": "join__FieldSet",
+              "required": false
+            }
+          },
+          "default_value": null,
+          "description": null,
+          "join_fields": []
+        },
+        {
+          "name": "provides",
+          "of_type": {
+            "Named": {
+              "name": "join__FieldSet",
+              "required": false
+            }
+          },
+          "default_value": null,
+          "description": null,
+          "join_fields": []
+        },
+        {
+          "name": "type",
+          "of_type": {
+            "Named": {
+              "name": "String",
+              "required": false
+            }
+          },
+          "default_value": null,
+          "description": null,
+          "join_fields": []
+        },
+        {
+          "name": "external",
+          "of_type": {
+            "Named": {
+              "name": "Boolean",
+              "required": false
+            }
+          },
+          "default_value": null,
+          "description": null,
+          "join_fields": []
+        },
+        {
+          "name": "override",
+          "of_type": {
+            "Named": {
+              "name": "String",
+              "required": false
+            }
+          },
+          "default_value": null,
+          "description": null,
+          "join_fields": []
+        },
+        {
+          "name": "usedOverridden",
+          "of_type": {
+            "Named": {
+              "name": "Boolean",
+              "required": false
+            }
+          },
+          "default_value": null,
+          "description": null,
+          "join_fields": []
+        }
+      ],
+      "repeatable": true,
+      "locations": [
+        "FieldDefinition",
+        "InputFieldDefinition"
+      ]
+    },
+    {
+      "name": "join__graph",
+      "description": null,
+      "arguments": [
+        {
+          "name": "name",
+          "of_type": {
+            "Named": {
+              "name": "String",
+              "required": true
+            }
+          },
+          "default_value": null,
+          "description": null,
+          "join_fields": []
+        },
+        {
+          "name": "url",
+          "of_type": {
+            "Named": {
+              "name": "String",
+              "required": true
+            }
+          },
+          "default_value": null,
+          "description": null,
+          "join_fields": []
+        }
+      ],
+      "repeatable": true,
+      "locations": [
+        "EnumValue"
+      ]
+    },
+    {
+      "name": "join__implements",
+      "description": null,
+      "arguments": [
+        {
+          "name": "graph",
+          "of_type": {
+            "Named": {
+              "name": "join__Graph",
+              "required": true
+            }
+          },
+          "default_value": null,
+          "description": null,
+          "join_fields": []
+        },
+        {
+          "name": "interface",
+          "of_type": {
+            "Named": {
+              "name": "String",
+              "required": true
+            }
+          },
+          "default_value": null,
+          "description": null,
+          "join_fields": []
+        }
+      ],
+      "repeatable": true,
+      "locations": [
+        "Object",
+        "Interface"
+      ]
+    },
+    {
+      "name": "join__type",
+      "description": null,
+      "arguments": [
+        {
+          "name": "graph",
+          "of_type": {
+            "Named": {
+              "name": "join__Graph",
+              "required": true
+            }
+          },
+          "default_value": null,
+          "description": null,
+          "join_fields": []
+        },
+        {
+          "name": "key",
+          "of_type": {
+            "Named": {
+              "name": "join__FieldSet",
+              "required": false
+            }
+          },
+          "default_value": null,
+          "description": null,
+          "join_fields": []
+        },
+        {
+          "name": "extension",
+          "of_type": {
+            "Named": {
+              "name": "Boolean",
+              "required": true
+            }
+          },
+          "default_value": false,
+          "description": null,
+          "join_fields": []
+        },
+        {
+          "name": "resolvable",
+          "of_type": {
+            "Named": {
+              "name": "Boolean",
+              "required": true
+            }
+          },
+          "default_value": true,
+          "description": null,
+          "join_fields": []
+        },
+        {
+          "name": "isInterfaceObject",
+          "of_type": {
+            "Named": {
+              "name": "Boolean",
+              "required": true
+            }
+          },
+          "default_value": false,
+          "description": null,
+          "join_fields": []
+        }
+      ],
+      "repeatable": true,
+      "locations": [
+        "Object",
+        "Interface",
+        "Union",
+        "Enum",
+        "InputObject",
+        "Scalar"
+      ]
+    },
+    {
+      "name": "join__unionMember",
+      "description": null,
+      "arguments": [
+        {
+          "name": "graph",
+          "of_type": {
+            "Named": {
+              "name": "join__Graph",
+              "required": true
+            }
+          },
+          "default_value": null,
+          "description": null,
+          "join_fields": []
+        },
+        {
+          "name": "member",
+          "of_type": {
+            "Named": {
+              "name": "String",
+              "required": true
+            }
+          },
+          "default_value": null,
+          "description": null,
+          "join_fields": []
+        }
+      ],
+      "repeatable": true,
+      "locations": [
+        "Union"
+      ]
+    },
+    {
+      "name": "link",
+      "description": null,
+      "arguments": [
+        {
+          "name": "url",
+          "of_type": {
+            "Named": {
+              "name": "String",
+              "required": false
+            }
+          },
+          "default_value": null,
+          "description": null,
+          "join_fields": []
+        },
+        {
+          "name": "as",
+          "of_type": {
+            "Named": {
+              "name": "String",
+              "required": false
+            }
+          },
+          "default_value": null,
+          "description": null,
+          "join_fields": []
+        },
+        {
+          "name": "for",
+          "of_type": {
+            "Named": {
+              "name": "link__Purpose",
+              "required": false
+            }
+          },
+          "default_value": null,
+          "description": null,
+          "join_fields": []
+        },
+        {
+          "name": "import",
+          "of_type": {
+            "List": {
+              "of_type": {
+                "Named": {
+                  "name": "link__Import",
+                  "required": false
+                }
+              },
+              "non_null": false
+            }
+          },
+          "default_value": null,
+          "description": null,
+          "join_fields": []
+        }
+      ],
+      "repeatable": true,
+      "locations": [
+        "Schema"
+      ]
+    },
+    {
+      "name": "lowercase",
+      "description": null,
+      "arguments": [],
+      "repeatable": true,
+      "locations": [
+        "Field"
+      ]
+    }
+  ],
+  "join_graphs": [
+    {
+      "name": "accounts",
+      "url": "http://localhost:4001/"
+    },
+    {
+      "name": "products",
+      "url": "http://localhost:4002/"
+    },
+    {
+      "name": "reviews",
+      "url": "http://localhost:4003/"
+    }
+  ]
+}

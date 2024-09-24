@@ -146,22 +146,21 @@ pub struct UnionTypeDefinition {
 pub struct JoinType {
     pub graph: GraphId,
     pub key: Option<String>,
+    #[serde(default="default_false")]
     pub extension: bool,
+    #[serde(default="default_true")]
     pub resolvable: bool,
+    #[serde(default="default_false")]
     pub is_interface_object: bool,
 }
 
-impl JoinType {
-    pub fn new(graph: String) -> Self {
-        Self {
-            graph: GraphId(graph),
-            key: None,
-            extension: false,
-            resolvable: true,
-            is_interface_object: false,
-        }
-    }
+fn default_true() -> bool {
+    true
 }
+fn default_false() -> bool {
+    true
+}
+
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JoinEnum {

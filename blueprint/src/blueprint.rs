@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 
 use async_graphql_parser::types::ServiceDocument;
 use serde::{Deserialize, Serialize};
@@ -79,7 +79,7 @@ pub struct EnumValueDefinition {
     pub description: Option<String>,
     pub name: String,
     pub directives: Vec<Directive>,
-    pub join_enums: Vec<GraphId>
+    pub join_enums: Vec<JoinEnum>
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -161,6 +161,11 @@ impl JoinType {
             is_interface_object: false,
         }
     }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct JoinEnum {
+    pub graph: GraphId,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

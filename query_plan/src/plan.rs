@@ -7,6 +7,7 @@ pub enum QueryPlan {
     Fetch {
         service: GraphId,
         query: String,
+        type_of: String
     },
     Flatten {
         path: String,

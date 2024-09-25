@@ -28,6 +28,10 @@ pub struct Field<Value> {
     pub selections: SelectionSet<Value>,
     pub arguments: Vec<Argument<Value>>,
     pub directives: Vec<Directive<Value>>,
+
+    /// When set to true the field is considered to be used internally for
+    /// querying sub-graphs and should not be exposed to the user.
+    pub is_hidden: bool,
 }
 
 #[derive(Debug, Clone, Setters)]

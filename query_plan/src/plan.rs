@@ -1,3 +1,5 @@
+use blueprint::GraphId;
+
 #[derive(Debug, Clone)]
 pub enum QueryPlan {
     Parallel(Vec<QueryPlan>),

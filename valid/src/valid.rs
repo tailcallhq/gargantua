@@ -213,9 +213,8 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::{Valid, Validator};
-
     use super::{Cause, ValidationError};
+    use crate::{Valid, Validator};
 
     #[test]
     fn test_ok() {

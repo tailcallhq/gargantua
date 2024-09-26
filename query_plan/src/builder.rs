@@ -1,10 +1,10 @@
 use std::collections::{HashMap, HashSet};
 
 use async_graphql::Positioned;
-use async_graphql_parser::types::{ExecutableDocument, Field as GqlField, Selection, SelectionSet};
+use async_graphql_parser::types as Q;
 use blueprint::{Blueprint, Definition, FieldDefinition, ObjectTypeDefinition, Type};
 
-use crate::{Argument, Directive, Field, QueryPlan, SelectionSet as SelectionSetQP};
+use crate::{Argument, Directive, Field, QueryPlan, SelectionSet};
 
 pub struct Builder {
     blueprint: Blueprint,
@@ -15,7 +15,7 @@ impl Builder {
         Self { blueprint }
     }
 
-    pub fn build(&self, doc: &ExecutableDocument) -> QueryPlan<String> {
+    pub fn build(&self, doc: &Q::ExecutableDocument) -> QueryPlan<String> {
         let paths = match &doc.operations {
             async_graphql_parser::types::DocumentOperations::Single(Positioned {
                 node, ..
@@ -85,13 +85,13 @@ impl Builder {
 
     fn build_query_plan(
         &self,
-        selections: &SelectionSet,
+        selections: &Q::SelectionSet,
         container_type: &str,
     ) -> HashMap<String, HashSet<String>> {
         let mut paths: HashMap<String, HashSet<String>> = HashMap::new();
 
         for selection in selections.items.iter() {
-            if let Selection::Field(Positioned { node, .. }) = &selection.node {
+            if let Q::Selection::Field(Positioned { node, .. }) = &selection.node {
                 // 1. fetch operation
                 // let plan = SimplePlan::Fetch { service: "product-svc".into(), query: "query {
                 // topProducts { name __typename upc} }".into() };
@@ -122,7 +122,7 @@ impl Builder {
                     paths.insert(subgraph.0.to_string(), fields);
                 }
                 for selection_field in node.selection_set.node.items.iter() {
-                    if let Selection::Field(Positioned { node, .. }) = &selection_field.node {
+                    if let Q::Selection::Field(Positioned { node, .. }) = &selection_field.node {
                         let nested_field_def = self.get_field_def(&node.name.node);
                         let nested_field_type_name = self.type_to_string(&nested_field_def.of_type);
                         let nested_field_subgraph = nested_field_def
@@ -190,8 +190,8 @@ impl Builder {
     }
 }
 
-impl SelectionSetQP<String> {
-    fn from_gql_field(field: &GqlField) -> Self {
+impl SelectionSet<String> {
+    fn from_gql_field(field: &Q::Field) -> Self {
         Self {
             fields: field
                 .selection_set
@@ -199,7 +199,7 @@ impl SelectionSetQP<String> {
                 .items
                 .iter()
                 .filter_map(|s| {
-                    if let Selection::Field(f) = &s.node {
+                    if let Q::Selection::Field(f) = &s.node {
                         Some(Field::from_gql_field(&f.node))
                     } else {
                         None
@@ -211,10 +211,10 @@ impl SelectionSetQP<String> {
 }
 
 impl Field<String> {
-    fn from_gql_field(field: &GqlField) -> Self {
+    fn from_gql_field(field: &Q::Field) -> Self {
         Field {
             name: field.name.to_string(),
-            selections: SelectionSetQP::from_gql_field(field),
+            selections: SelectionSet::from_gql_field(field),
             arguments: field
                 .arguments
                 .iter()

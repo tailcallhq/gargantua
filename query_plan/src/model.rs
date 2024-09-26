@@ -6,14 +6,14 @@ pub enum QueryPlan<Value> {
     Parallel(Vec<QueryPlan<Value>>),
     Sequence(Vec<QueryPlan<Value>>),
     Fetch {
-        pub service: GraphId,
-        pub query: SelectionSet<Value>,
-        pub representations: Option<SelectionSet<Value>>,
-        pub type_name: String,
+        service: GraphId,
+        query: SelectionSet<Value>,
+        representations: Option<SelectionSet<Value>>,
+        type_name: String,
     },
     Flatten {
-        pub path: Lens,
-        pub plan: Box<QueryPlan<Value>>,
+        path: Lens,
+        plan: Box<QueryPlan<Value>>,
     },
 }
 

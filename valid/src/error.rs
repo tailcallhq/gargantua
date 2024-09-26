@@ -91,7 +91,7 @@ mod tests {
     use pretty_assertions::assert_eq;
     use stripmargin::StripMargin;
 
-    use crate::core::valid::{Cause, ValidationError};
+    use crate::{Cause, ValidationError};
 
     #[derive(Debug, PartialEq, serde::Deserialize)]
     struct Foo {

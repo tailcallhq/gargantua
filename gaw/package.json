@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build-workflows": "gwf build"
+    "build-workflows": "gwf build && mv .github/** ../.github/workflows"
   },
   "keywords": [],
   "author": "",

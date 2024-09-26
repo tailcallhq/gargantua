@@ -118,8 +118,11 @@ mod tests {
     #[test]
     fn test_from_serde_error() {
         let foo = &mut serde_json::Deserializer::from_str("{ \"a\": true }");
-        let actual =
-            ValidationError::from(serde_path_to_error::deserialize::<_, Foo>(foo).unwrap_err());
+        let actual = ValidationError::new(
+            serde_path_to_error::deserialize::<_, Foo>(foo)
+                .unwrap_err()
+                .to_string(),
+        );
         let expected = ValidationError::new(
             "Parsing failed because of invalid type: boolean `true`, expected i32".to_string(),
         )

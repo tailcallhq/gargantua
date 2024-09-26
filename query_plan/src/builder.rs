@@ -1,12 +1,10 @@
 use std::collections::{HashMap, HashSet};
 
 use async_graphql::Positioned;
-use async_graphql_parser::types::{
-    ExecutableDocument, Field as GqlField, OperationDefinition, Selection, SelectionSet,
-};
-use blueprint::{Blueprint, Definition, FieldDefinition, GraphId, ObjectTypeDefinition, Type};
+use async_graphql_parser::types::{ExecutableDocument, Field as GqlField, Selection, SelectionSet};
+use blueprint::{Blueprint, Definition, FieldDefinition, ObjectTypeDefinition, Type};
 
-use crate::{Argument, Directive, Field, QueryPlan, SelectionSet as SelectionSetQP, SimplePlan};
+use crate::{Argument, Directive, Field, QueryPlan, SelectionSet as SelectionSetQP};
 
 pub struct Builder {
     blueprint: Blueprint,
@@ -95,15 +93,18 @@ impl Builder {
         for selection in selections.items.iter() {
             if let Selection::Field(Positioned { node, .. }) = &selection.node {
                 // 1. fetch operation
-                // let plan = SimplePlan::Fetch { service: "product-svc".into(), query: "query { topProducts { name __typename upc} }".into() };
+                // let plan = SimplePlan::Fetch { service: "product-svc".into(), query: "query {
+                // topProducts { name __typename upc} }".into() };
 
                 // Find the field definition in the blueprint
                 let field_def = self.get_field_def(&node.name.node);
                 // let type_name = self.type_to_string(&field_def.of_type);
 
                 // steps:
-                // 1. if field have directive of join__field, then pick the subgraph from that directive.
-                // 2. if field doens't have the join__field, then that pick belongs to local subgraph -> look at the join__type defination for subgraph.
+                // 1. if field have directive of join__field, then pick the subgraph from that
+                //    directive.
+                // 2. if field doens't have the join__field, then that pick belongs to local
+                //    subgraph -> look at the join__type defination for subgraph.
                 let subgraph = field_def
                     .join_fields
                     .first()
@@ -111,12 +112,7 @@ impl Builder {
                     .cloned()
                     .unwrap_or_else(|| {
                         let field_def = self.get_type_def(container_type);
-                        field_def
-                            .join_types
-                            .first()
-                            .cloned()
-                            .unwrap()
-                            .graph
+                        field_def.join_types.first().cloned().unwrap().graph
                     });
                 if let Some(fields) = paths.get_mut(subgraph.0.as_str()) {
                     fields.insert(node.name.node.to_string());
@@ -172,16 +168,18 @@ impl Builder {
                         }
 
                         // if sub-field has it's own selection set then -> explore that.
-                        // TODO: i think these sub-fields plans can be executed in parallel manner but verify that with various edge cases.
-                        // nesting operations must be handled sequentially with respect to its parent.
-                        let selection_sub_paths = self.build_query_plan(&node.selection_set.node, &nested_field_type_name);
+                        // TODO: i think these sub-fields plans can be executed in parallel manner
+                        // but verify that with various edge cases.
+                        // nesting operations must be handled sequentially with respect to its
+                        // parent.
+                        let selection_sub_paths = self
+                            .build_query_plan(&node.selection_set.node, &nested_field_type_name);
                         for (subgraph, selection_set) in selection_sub_paths {
                             if let Some(fields) = paths.get_mut(subgraph.as_str()) {
                                 fields.extend(selection_set);
                             } else {
                                 paths.insert(subgraph, selection_set);
                             }
-
                         }
                     }
                 }
@@ -252,7 +250,8 @@ mod test {
 
     #[test]
     fn test() {
-        // let query = "query  { topProducts { name reviews { score } reviews { description } } }";
+        // let query = "query  { topProducts { name reviews { score } reviews {
+        // description } } }";
         let query = "query { topProducts { name reviews { score } reviews { description } } }";
         let p_query = async_graphql_parser::parse_query(query).unwrap();
 
@@ -273,10 +272,10 @@ mod test {
         // };
 
         // for selection in node.items.iter() {
-        //     if let Selection::Field(Positioned { node, .. }) = &selection.node {
-        //         let selection_field = SelectionSet::from_gql_field(node);
-        //         println!("[finder]: {:#?}", selection_field);
-        //         break;
+        //     if let Selection::Field(Positioned { node, .. }) =
+        // &selection.node {         let selection_field =
+        // SelectionSet::from_gql_field(node);         println!("
+        // [finder]: {:#?}", selection_field);         break;
         //     }
         // }
     }

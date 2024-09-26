@@ -79,7 +79,7 @@ pub struct EnumValueDefinition {
     pub description: Option<String>,
     pub name: String,
     pub directives: Vec<Directive>,
-    pub join_enums: Vec<JoinEnum>
+    pub join_enums: Vec<JoinEnum>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -106,7 +106,7 @@ pub struct FieldDefinition {
     pub of_type: Type,
     pub directives: Vec<Directive>,
     pub description: Option<String>,
-    pub join_fields: Vec<JoinField>
+    pub join_fields: Vec<JoinField>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -146,11 +146,11 @@ pub struct UnionTypeDefinition {
 pub struct JoinType {
     pub graph: GraphId,
     pub key: Option<String>,
-    #[serde(default="default_false")]
+    #[serde(default = "default_false")]
     pub extension: bool,
-    #[serde(default="default_true")]
+    #[serde(default = "default_true")]
     pub resolvable: bool,
-    #[serde(default="default_false")]
+    #[serde(default = "default_false")]
     pub is_interface_object: bool,
 }
 
@@ -160,7 +160,6 @@ fn default_true() -> bool {
 fn default_false() -> bool {
     true
 }
-
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JoinEnum {
@@ -181,13 +180,13 @@ pub struct JoinField {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JoinImplements {
     pub graph: GraphId,
-    pub interface: String
+    pub interface: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JoinUnion {
     pub graph: GraphId,
-    pub member: String
+    pub member: String,
 }
 
 /// Type to represent GraphQL type usage with modifiers

@@ -191,37 +191,22 @@ impl Builder {
 
 #[cfg(test)]
 mod test {
-    use blueprint::Blueprint;
-    use valid::{Valid, Validator};
-
     use super::Builder;
+    use crate::QueryPlan;
+    use blueprint::Blueprint;
+    use insta::assert_debug_snapshot;
+    use valid::{Valid, Validator};
 
     #[test]
     fn test() {
-        let query = "query { topProducts { name reviews { score } reviews { description } } }";
-        let p_query = async_graphql_parser::parse_query(query).unwrap();
+        // Blueprint
         let graphql = resource::resource_str!("../examples/router.graphql");
-        let document = async_graphql_parser::parse_schema(graphql).unwrap();
-        let blueprint = Blueprint::parse_doc(document).to_result().unwrap();
+        let blueprint = Blueprint::parse(graphql).to_result().unwrap();
 
-        // insta::assert_debug_snapshot!(blueprint);
+        // Query
+        let query = "query { topProducts { name reviews { score } reviews { description } } }";
+        let plan = QueryPlan::try_new(query.to_string(), blueprint.to_index()).unwrap();
 
-        let builder = Builder::new(blueprint);
-        let _ = builder.build(&p_query);
-
-        // let node = match &p_query.operations {
-        //     async_graphql_parser::types::DocumentOperations::Single(Positioned {
-        //         node, ..
-        //     }) => node.selection_set.node.clone(),
-        //     _ => todo!(),
-        // };
-
-        // for selection in node.items.iter() {
-        //     if let Selection::Field(Positioned { node, .. }) =
-        // &selection.node {         let selection_field =
-        // SelectionSet::from_gql_field(node);         println!("
-        // [finder]: {:#?}", selection_field);         break;
-        //     }
-        // }
+        assert_debug_snapshot!(plan);
     }
 }

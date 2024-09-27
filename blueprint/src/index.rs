@@ -59,6 +59,10 @@ impl Index {
             .and_then(|(_, fields_map)| fields_map.get(field_name))
     }
 
+    pub fn get_type(&self, type_name: &str) -> Option<&(Definition, HashMap<String, QueryField>)> {
+        self.map.get(type_name)
+    }
+
     pub fn get_query(&self) -> Option<&str> {
         self.schema.query.as_deref()
     }

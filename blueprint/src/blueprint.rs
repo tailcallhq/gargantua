@@ -38,12 +38,9 @@ impl Blueprint {
         super::build::parse(doc).to_result().unwrap()
     }
 
-    pub fn parse(schema: String) -> Valid<Blueprint, Error> {
-        Valid::from(
-            async_graphql_parser::parse_schema(schema)
-                .map_err(|e| ValidationError::new(Error::from(e))),
-        )
-        .map(|document| Blueprint::parse_doc(document))
+    pub fn parse(schema: String) -> Result<Blueprint, Error> {
+        let document = async_graphql_parser::parse_schema(schema)?;
+        Ok(Blueprint::parse_doc(document))
     }
 
     pub fn to_index(&self) -> Index {

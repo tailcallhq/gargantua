@@ -1,6 +1,7 @@
 {
   "name": "gaw",
   "version": "1.0.0",
+  "private": true,
   "main": "index.js",
   "scripts": {
     "build-workflows": "gwf build && mv .github/** ../.github/workflows"

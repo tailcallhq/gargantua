@@ -2,7 +2,7 @@ import { Workflow, NormalJob, Step } from "github-actions-workflow-ts";
 
 const checkoutStep = new Step({
   name: "Checkout",
-  uses: "actions/checkout@v3",
+  uses: "actions/checkout@v4",
 });
 
 const setupRustStep = new Step({

@@ -22,6 +22,8 @@ macro_rules! extract_join {
     };
 }
 
+// TODO: drop Valid from here
+// Reading a super-graph configuration is infallible
 pub fn parse(doc: async_graphql_parser::types::ServiceDocument) -> Valid<Blueprint, String> {
     let mut root_schema = Valid::succeed(SchemaDefinition {
         query: None,
@@ -163,17 +165,15 @@ pub fn parse(doc: async_graphql_parser::types::ServiceDocument) -> Valid<Bluepri
     });
 
     root_schema
-        .zip(definitions)
-        .zip(directives)
-        .zip(join_graphs)
-        .map(
-            |(((schema, definitions), directives), join_graphs)| Blueprint {
-                definitions,
-                schema,
-                directives,
-                join_graphs,
-            },
-        )
+        .fuse(definitions)
+        .fuse(directives)
+        .fuse(join_graphs)
+        .map(|(schema, definitions, directives, join_graphs)| Blueprint {
+            definitions,
+            schema,
+            directives,
+            join_graphs,
+        })
 }
 
 fn parse_directive_definition(

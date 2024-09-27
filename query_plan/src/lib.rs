@@ -1,5 +1,5 @@
-mod builder;
+mod build;
 mod model;
 
-pub use builder::Builder;
+pub use build::Builder;
 pub use model::*;

@@ -12,6 +12,7 @@ serde.features = ["derive"]
 serde.workspace = true
 serde_json.workspace = true
 valid = { path = "../valid" }
+derive_more.workspace = true
 
 [dev-dependencies]
 resource.workspace = true

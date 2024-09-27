@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use valid::Valid;
 
+use crate::index::Index;
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Blueprint {
     pub definitions: Vec<Definition>,
@@ -33,6 +35,10 @@ pub struct JoinGraph {
 impl Blueprint {
     pub fn parse(doc: ServiceDocument) -> Valid<Blueprint, String> {
         super::build::parse(doc)
+    }
+
+    pub fn to_index(&self) -> Index {
+        Index::from(self)
     }
 }
 

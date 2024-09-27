@@ -4,7 +4,7 @@ use async_graphql::Positioned;
 use async_graphql_parser::types as Q;
 use blueprint::{Blueprint, Definition, FieldDefinition, ObjectTypeDefinition, Type};
 
-use crate::{Argument, Directive, Field, QueryPlan, SelectionSet};
+use crate::QueryPlan;
 
 pub struct Builder {
     blueprint: Blueprint,
@@ -190,57 +190,6 @@ impl Builder {
     }
 }
 
-impl SelectionSet<String> {
-    fn from_gql_field(field: &Q::Field) -> Self {
-        Self {
-            fields: field
-                .selection_set
-                .node
-                .items
-                .iter()
-                .filter_map(|s| {
-                    if let Q::Selection::Field(f) = &s.node {
-                        Some(Field::from_gql_field(&f.node))
-                    } else {
-                        None
-                    }
-                })
-                .collect(),
-        }
-    }
-}
-
-impl Field<String> {
-    fn from_gql_field(field: &Q::Field) -> Self {
-        Field {
-            name: field.name.to_string(),
-            selections: SelectionSet::from_gql_field(field),
-            arguments: field
-                .arguments
-                .iter()
-                .map(|(name, value)| Argument { name: name.to_string(), value: value.to_string() })
-                .collect(),
-            directives: field
-                .directives
-                .iter()
-                .map(|d| Directive {
-                    name: d.node.name.to_string(),
-                    arguments: d
-                        .node
-                        .arguments
-                        .iter()
-                        .map(|(name, value)| Argument {
-                            name: name.to_string(),
-                            value: value.to_string(),
-                        })
-                        .collect(),
-                })
-                .collect(),
-            is_hidden: false,
-        }
-    }
-}
-
 #[cfg(test)]
 mod test {
     use blueprint::Blueprint;
@@ -250,11 +199,8 @@ mod test {
 
     #[test]
     fn test() {
-        // let query = "query  { topProducts { name reviews { score } reviews {
-        // description } } }";
         let query = "query { topProducts { name reviews { score } reviews { description } } }";
         let p_query = async_graphql_parser::parse_query(query).unwrap();
-
         let graphql = resource::resource_str!("../examples/router.graphql");
         let document = async_graphql_parser::parse_schema(graphql).unwrap();
         let blueprint = Blueprint::parse(document).to_result().unwrap();

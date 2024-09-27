@@ -1,5 +1,6 @@
 mod blueprint;
 mod build;
+mod index;
 
 pub use blueprint::*;
 pub use build::parse;

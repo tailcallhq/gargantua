@@ -1,5 +1,8 @@
-use blueprint::Graph;
+use blueprint::{Graph, Index};
 use derive_setters::Setters;
+use valid::Validator;
+
+use crate::{error::Error, Builder};
 
 #[derive(Debug, Clone)]
 pub enum QueryPlan<Value> {
@@ -25,6 +28,12 @@ impl<A: Default> QueryPlan<A> {
             representations: None,
             type_name,
         }
+    }
+
+    pub fn try_new(query: String, index: Index) -> Result<Self, Error> {
+        let doc = async_graphql_parser::parse_query(&query)?;
+        let builder: Builder<A> = Builder::<A>::new(index);
+        Ok(builder.build(&doc).to_result()?)
     }
 }
 

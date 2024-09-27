@@ -1,4 +1,4 @@
-use blueprint::GraphId;
+use blueprint::Graph;
 use derive_setters::Setters;
 
 #[derive(Debug, Clone)]
@@ -6,10 +6,10 @@ pub enum QueryPlan<Value> {
     Parallel(Vec<QueryPlan<Value>>),
     Sequence(Vec<QueryPlan<Value>>),
     Fetch {
-        service: GraphId,
+        service: Graph,
         query: SelectionSet<Value>,
         representations: Option<SelectionSet<Value>>,
-        type_name: String,
+        type_name: TypeName,
     },
     Flatten {
         path: Lens,
@@ -17,7 +17,31 @@ pub enum QueryPlan<Value> {
     },
 }
 
-#[derive(Debug, Clone, Setters)]
+impl<A: Default> QueryPlan<A> {
+    pub fn fetch(service: Graph, type_name: TypeName) -> Self {
+        QueryPlan::Fetch {
+            service,
+            query: SelectionSet::default(),
+            representations: None,
+            type_name,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct TypeName(String);
+
+impl TypeName {
+    pub fn new(name: &str) -> Self {
+        TypeName(name.to_string())
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+#[derive(Default, Debug, Clone, Setters)]
 pub struct SelectionSet<Value> {
     pub fields: Vec<Field<Value>>,
 }

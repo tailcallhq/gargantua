@@ -114,12 +114,12 @@ impl Builder {
                         let field_def = self.get_type_def(container_type);
                         field_def.join_types.first().cloned().unwrap().graph
                     });
-                if let Some(fields) = paths.get_mut(subgraph.0.as_str()) {
+                if let Some(fields) = paths.get_mut(subgraph.as_str()) {
                     fields.insert(node.name.node.to_string());
                 } else {
                     let mut fields = HashSet::new();
                     fields.insert(node.name.node.to_string());
-                    paths.insert(subgraph.0.to_string(), fields);
+                    paths.insert(subgraph.as_str().to_string(), fields);
                 }
                 for selection_field in node.selection_set.node.items.iter() {
                     if let Q::Selection::Field(Positioned { node, .. }) = &selection_field.node {
@@ -141,12 +141,12 @@ impl Builder {
                             });
 
                         if nested_field_subgraph == subgraph {
-                            if let Some(fields) = paths.get_mut(subgraph.0.as_str()) {
+                            if let Some(fields) = paths.get_mut(subgraph.as_str()) {
                                 fields.insert(node.name.node.to_string());
                             } else {
                                 let mut fields = HashSet::new();
                                 fields.insert(node.name.node.to_string());
-                                paths.insert(subgraph.0.to_string(), fields);
+                                paths.insert(subgraph.as_str().to_string(), fields);
                             }
                         } else {
                             // before checking on type, we should check for the join on field.
@@ -160,10 +160,10 @@ impl Builder {
                                 new_fields.insert(join_type.key.unwrap());
                             }
 
-                            if let Some(fields) = paths.get_mut(subgraph.0.as_str()) {
+                            if let Some(fields) = paths.get_mut(subgraph.as_str()) {
                                 fields.extend(new_fields);
                             } else {
-                                paths.insert(subgraph.0.to_string(), new_fields);
+                                paths.insert(subgraph.as_str().to_string(), new_fields);
                             }
                         }
 

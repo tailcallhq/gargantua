@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use async_graphql_parser::{Pos, Positioned};
 use async_graphql_value::{ConstValue, Name};
-use valid::{Valid, Validator};
+use valid::Valid;
 
 use crate::{
     Blueprint, Definition, Directive, DirectiveDefinition, EnumValueDefinition, FieldDefinition,
@@ -22,19 +22,19 @@ macro_rules! extract_join {
     };
 }
 
-// TODO: drop Valid from here
 // Reading a super-graph configuration is infallible
-pub fn parse(doc: async_graphql_parser::types::ServiceDocument) -> Valid<Blueprint, String> {
-    let mut root_schema = Valid::succeed(SchemaDefinition {
+pub fn parse(doc: async_graphql_parser::types::ServiceDocument) -> Blueprint {
+    let mut root_schema = SchemaDefinition {
         query: None,
         mutation: None,
         subscription: None,
         directives: Vec::new(),
-    });
-    let mut definitions = BTreeMap::<String, Valid<Definition, String>>::new();
-    let mut directives = BTreeMap::<String, Valid<DirectiveDefinition, String>>::new();
+    };
+    let mut definitions = BTreeMap::<String, Definition>::new();
+    let mut directives = BTreeMap::<String, DirectiveDefinition>::new();
 
     for definition in doc.definitions.into_iter() {
+        
         match definition {
             async_graphql_parser::types::TypeSystemDefinition::Schema(Positioned {
                 pos: _,
@@ -42,34 +42,28 @@ pub fn parse(doc: async_graphql_parser::types::ServiceDocument) -> Valid<Bluepri
             }) => {
                 let schema = parse_schema(schema_node);
 
-                root_schema = root_schema
-                    .zip(schema)
-                    .and_then(|(mut root_schema, schema)| {
-                        if let (None, Some(query)) = (&root_schema.query, schema.query) {
-                            root_schema.query = Some(query)
-                        }
+                if let (None, Some(query)) = (&root_schema.query, schema.query) {
+                    root_schema.query = Some(query)
+                }
 
-                        if let (None, Some(mutation)) = (&root_schema.mutation, schema.mutation) {
-                            root_schema.mutation = Some(mutation)
-                        }
+                if let (None, Some(mutation)) = (&root_schema.mutation, schema.mutation) {
+                    root_schema.mutation = Some(mutation)
+                }
 
-                        if let (None, Some(subscription)) =
-                            (&root_schema.subscription, schema.subscription)
-                        {
-                            root_schema.subscription = Some(subscription)
-                        }
+                if let (None, Some(subscription)) = (&root_schema.subscription, schema.subscription)
+                {
+                    root_schema.subscription = Some(subscription)
+                }
 
-                        // TODO: validate that non-repetitive directive is not defined twice
-                        let directives = root_schema
-                            .directives
-                            .clone()
-                            .into_iter()
-                            .chain(schema.directives.into_iter())
-                            .collect::<Vec<_>>();
+                // TODO: validate that non-repetitive directive is not defined twice
+                let directives = root_schema
+                    .directives
+                    .clone()
+                    .into_iter()
+                    .chain(schema.directives.into_iter())
+                    .collect::<Vec<_>>();
 
-                        root_schema.directives = directives;
-                        Valid::succeed(root_schema)
-                    });
+                root_schema.directives = directives;
             }
             async_graphql_parser::types::TypeSystemDefinition::Type(Positioned {
                 pos: type_pos,
@@ -77,116 +71,64 @@ pub fn parse(doc: async_graphql_parser::types::ServiceDocument) -> Valid<Bluepri
             }) => {
                 let name = type_node.name.clone().into_inner().to_string();
 
-                // TODO: properly merge types
                 let definition = parse_type(type_node);
-                match definitions.remove(&name) {
-                    Some(res) => {
-                        let err = format!(
-                            "The type `{}` has been already defined, {:?}",
-                            name, type_pos
-                        );
-                        let definition = match res.to_result() {
-                            Ok(_) => Valid::fail(err),
-                            Err(e) => {
-                                let e = e.append(err);
-                                Valid::from_validation_err(e)
-                            }
-                        };
-                        definitions.insert(name, definition);
-                    }
-                    None => {
-                        definitions.insert(name, definition);
-                    }
-                }
+                definitions.insert(name, definition);
             }
             async_graphql_parser::types::TypeSystemDefinition::Directive(Positioned {
                 pos: directive_pos,
                 node: directive_node,
             }) => {
                 let name = directive_node.name.clone().into_inner().to_string();
-                match directives.remove(&name) {
-                    Some(existing) => {
-                        let error = format!(
-                            "The directive `{}` has been defined twice,{:?}",
-                            name, directive_pos
-                        );
-                        match existing.to_result() {
-                            Ok(_) => {
-                                directives.insert(name, Valid::fail(error));
-                            }
-                            Err(e) => {
-                                let e = e.append(error);
-                                directives.insert(name, Valid::from_validation_err(e));
-                            }
-                        }
-                    }
-                    None => {
-                        let directive = parse_directive_definition(directive_node);
-                        directives.insert(name.clone(), directive);
-                    }
-                };
+                let directive = parse_directive_definition(directive_node);
+                directives.insert(name.clone(), directive);
             }
         }
     }
-    let definitions =
-        Valid::from_iter(definitions.clone().into_values().collect::<Vec<_>>(), |d| d);
-    let directives = Valid::from_iter(directives.into_values().collect::<Vec<_>>(), |d| d);
+    let definitions = definitions.clone().into_values().collect::<Vec<_>>();
+    let directives = directives.into_values().collect::<Vec<_>>();
 
-    let join_graphs = definitions.clone().and_then(|definitions| {
-        let join_graph_enum = definitions.clone().into_iter().find_map(|definition| {
-            if let Definition::Enum(enumeration) = definition {
-                if enumeration.name == "join__Graph" {
-                    let data =
-                        enumeration
-                            .enum_values
-                            .into_iter()
-                            .fold(Vec::new(), |mut acc, cur| {
-                                let mut join_graphs: Vec<JoinGraph> = extract_join!(
-                                    cur.directives.into_iter(),
-                                    "join__graph",
-                                    JoinGraph
-                                );
-                                acc.append(&mut join_graphs);
-                                acc
-                            });
+    let join_graph_enum = definitions.clone().into_iter().find_map(|definition| {
+        if let Definition::Enum(enumeration) = definition {
+            if enumeration.name == "join__Graph" {
+                let data =
+                    enumeration
+                        .enum_values
+                        .into_iter()
+                        .fold(Vec::new(), |mut acc, cur| {
+                            let mut join_graphs: Vec<JoinGraph> = extract_join!(
+                                cur.directives.into_iter(),
+                                "join__graph",
+                                JoinGraph
+                            );
+                            acc.append(&mut join_graphs);
+                            acc
+                        });
 
-                    Some(data)
-                } else {
-                    None
-                }
+                Some(data)
             } else {
                 None
             }
-        });
-        Valid::from_option(
-            join_graph_enum,
-            "The `join__Graph` enumeration is missing".into(),
-        )
+        } else {
+            None
+        }
     });
 
-    root_schema
-        .fuse(definitions)
-        .fuse(directives)
-        .fuse(join_graphs)
-        .map(|(schema, definitions, directives, join_graphs)| Blueprint {
-            definitions,
-            schema,
-            directives,
-            join_graphs,
-        })
+    Blueprint {
+        definitions,
+        schema: root_schema,
+        directives,
+        join_graphs,
+    }
 }
 
 fn parse_directive_definition(
     directive_node: async_graphql_parser::types::DirectiveDefinition,
-) -> Valid<DirectiveDefinition, String> {
+) -> DirectiveDefinition {
     let name = directive_node.name.into_inner().to_string();
     let repeatable = directive_node.is_repeatable;
     let description = directive_node.description.map(|d| d.to_string());
 
-    let arguments = Valid::from_iter(
-        directive_node.arguments,
-        |Positioned { pos: _, node: input_field_node }| parse_input_field(input_field_node),
-    );
+    let arguments = directive_node.arguments.into_iter().map(|Positioned { pos: _, node: input_field_node }| parse_input_field(input_field_node)).collect();
 
     let locations: Vec<String> = directive_node
         .locations
@@ -237,13 +179,10 @@ fn parse_directive_definition(
     })
 }
 
-fn parse_type(type_node: async_graphql_parser::types::TypeDefinition) -> Valid<Definition, String> {
+fn parse_type(type_node: async_graphql_parser::types::TypeDefinition) -> Definition {
     let name = type_node.name.to_string();
     let description = type_node.description.map(|d| d.to_string());
-    let directives = Valid::from_iter(
-        type_node.directives.clone(),
-        |Positioned { pos: _, node: directive_node }| parse_directive(directive_node),
-    );
+    let directives = type_node.directives.clone().into_iter().map(|Positioned { pos: _, node: directive_node }| parse_directive(directive_node));
 
     match type_node.kind {
         async_graphql_parser::types::TypeKind::Scalar => directives.map(|directives| {
@@ -337,114 +276,90 @@ fn parse_type(type_node: async_graphql_parser::types::TypeDefinition) -> Valid<D
             })
         }
         async_graphql_parser::types::TypeKind::Enum(enum_type) => {
-            let enum_values = Valid::from_iter(
-                enum_type.values,
-                |Positioned { pos: _, node: enum_node }| parse_enum(enum_node),
-            );
+            let enum_values = enum_type.values.into_iter().map(|Positioned { pos: _, node: enum_node }| parse_enum(enum_node)).collect();
 
-            directives
-                .zip(enum_values)
-                .map(|(directives, enum_values)| {
-                    let join_types: Vec<JoinType> =
-                        extract_join!(directives.clone().into_iter(), "join__type", JoinType);
-                    Definition::Enum(crate::EnumTypeDefinition {
-                        name,
-                        directives,
-                        description,
-                        enum_values,
-                        join_types,
-                    })
-                })
+            let join_types: Vec<JoinType> =
+                extract_join!(directives.clone().into_iter(), "join__type", JoinType);
+            Definition::Enum(crate::EnumTypeDefinition {
+                name,
+                directives,
+                description,
+                enum_values,
+                join_types,
+            })
         }
         async_graphql_parser::types::TypeKind::InputObject(input_object_type) => {
-            let fields = Valid::from_iter(
-                input_object_type.fields,
-                |Positioned { pos: _, node: input_field_node }| parse_input_field(input_field_node),
-            );
+            let fields = input_object_type.fields.into_iter().map(|Positioned { pos: _, node: input_field_node }| parse_input_field(input_field_node));
 
-            directives.zip(fields).map(|(directives, fields)| {
-                let join_types: Vec<JoinType> =
-                    extract_join!(directives.into_iter(), "join__type", JoinType);
-                Definition::InputObject(crate::InputObjectTypeDefinition {
-                    name,
-                    fields,
-                    description,
-                    join_types,
-                })
+            let join_types: Vec<JoinType> =
+                extract_join!(directives.into_iter(), "join__type", JoinType);
+            Definition::InputObject(crate::InputObjectTypeDefinition {
+                name,
+                fields,
+                description,
+                join_types,
             })
         }
     }
 }
 
-fn parse_enum(
-    enum_node: async_graphql_parser::types::EnumValueDefinition,
-) -> Valid<EnumValueDefinition, String> {
+fn parse_enum(enum_node: async_graphql_parser::types::EnumValueDefinition) -> EnumValueDefinition {
     let name = enum_node.value.to_string();
     let description = enum_node.description.map(|d| d.to_string());
-    let directives = Valid::from_iter(
-        enum_node.directives,
-        |Positioned { pos: _, node: directive_node }| parse_directive(directive_node),
-    );
+    let directives: Vec<_> = enum_node
+        .directives
+        .into_iter()
+        .map(|Positioned { pos: _, node: directive_node }| parse_directive(directive_node))
+        .collect();
 
-    directives.map(|directives| {
-        let join_enums: Vec<JoinEnum> =
-            extract_join!(directives.clone().into_iter(), "join__enumValue", JoinEnum);
-        EnumValueDefinition { description, name, directives, join_enums }
-    })
+    let join_enums: Vec<JoinEnum> =
+        extract_join!(directives.clone().into_iter(), "join__enumValue", JoinEnum);
+    EnumValueDefinition { description, name, directives, join_enums }
 }
 
-fn parse_field(
-    field_node: async_graphql_parser::types::FieldDefinition,
-) -> Valid<FieldDefinition, String> {
+fn parse_field(field_node: async_graphql_parser::types::FieldDefinition) -> FieldDefinition {
     let name = field_node.name.to_string();
     let description = field_node.description.map(|d| d.to_string());
     let of_type = map_type(&field_node.ty.into_inner());
 
-    let args = Valid::from_iter(
-        field_node.arguments,
-        |Positioned { pos: _, node: arg_node }| parse_input_field(arg_node),
-    );
+    let args = field_node
+        .arguments
+        .into_iter()
+        .map(|Positioned { pos: _, node: arg_node }| parse_input_field(arg_node))
+        .collect();
 
-    let directives = Valid::from_iter(
-        field_node.directives,
-        |Positioned { pos: _, node: directive_node }| parse_directive(directive_node),
-    );
+    let directives = field_node
+        .directives
+        .into_iter()
+        .map(|Positioned { pos: _, node: directive_node }| parse_directive(directive_node));
 
-    args.zip(directives).map(|(args, directives)| {
-        let join_fields: Vec<JoinField> =
-            extract_join!(directives.clone().into_iter(), "join__field", JoinField);
+    let join_fields: Vec<JoinField> =
+        extract_join!(directives.clone().into_iter(), "join__field", JoinField);
 
-        FieldDefinition { name, args, of_type, directives, description, join_fields }
-    })
+    FieldDefinition { name, args, of_type, directives, description, join_fields }
 }
 
 fn parse_input_field(
     input_field_node: async_graphql_parser::types::InputValueDefinition,
-) -> Valid<InputFieldDefinition, String> {
+) -> InputFieldDefinition {
     let name = input_field_node.name.to_string();
     let description = input_field_node.description.map(|d| d.to_string());
     let of_type = map_type(&input_field_node.ty.into_inner());
 
-    let default_value = match input_field_node.default_value {
-        Some(Positioned { pos, node: argument_value }) => {
-            parse_argument(pos, argument_value).map(Some)
-        }
-        None => Valid::succeed(None),
-    };
+    let default_value = input_field_node
+        .default_value
+        .map(|Positioned { pos, node: argument_value }| parse_argument(argument_value));
 
-    let directives = Valid::from_iter(
-        input_field_node.directives,
-        |Positioned { pos: _, node: directive_node }| parse_directive(directive_node),
-    );
+    let directives: Vec<_> = input_field_node
+        .directives
+        .into_iter()
+        .map(|Positioned { pos: _, node: directive_node }| parse_directive(directive_node))
+        .collect();
 
-    directives
-        .zip(default_value)
-        .map(|(directives, default_value)| {
-            let join_fields: Vec<JoinField> =
-                extract_join!(directives.into_iter(), "join__field", JoinField);
+    let join_fields: Vec<JoinField> =
+        extract_join!(directives.into_iter(), "join__field", JoinField);
 
-            InputFieldDefinition { name, of_type, default_value, description, join_fields }
-        })
+    InputFieldDefinition { name, of_type, default_value, description, join_fields }
 }
 
 fn map_type(type_: &async_graphql_parser::types::Type) -> Type {
@@ -459,9 +374,7 @@ fn map_type(type_: &async_graphql_parser::types::Type) -> Type {
     }
 }
 
-fn parse_schema(
-    schema_node: async_graphql_parser::types::SchemaDefinition,
-) -> Valid<SchemaDefinition, String> {
+fn parse_schema(schema_node: async_graphql_parser::types::SchemaDefinition) -> SchemaDefinition {
     let query = if let Some(Positioned { pos: _, node: query_node }) = schema_node.query {
         Some(query_node.to_string())
     } else {
@@ -481,58 +394,47 @@ fn parse_schema(
             None
         };
 
-    let directives = Valid::from_iter(
-        schema_node.directives,
-        |Positioned { pos: _, node: directive_node }| parse_directive(directive_node),
-    );
+    let directives = schema_node
+        .directives
+        .into_iter()
+        .map(|Positioned { pos: _, node: directive_node }| parse_directive(directive_node))
+        .collect();
 
-    directives.map(|directives| SchemaDefinition { query, mutation, subscription, directives })
+    SchemaDefinition { query, mutation, subscription, directives }
 }
 
-fn parse_directive(
-    directive_node: async_graphql_parser::types::ConstDirective,
-) -> Valid<Directive, String> {
+fn parse_directive(directive_node: async_graphql_parser::types::ConstDirective) -> Directive {
     let arguments = parse_arguments(directive_node.arguments);
 
-    arguments.map(|arguments| Directive { name: directive_node.name.to_string(), arguments })
+    Directive { name: directive_node.name.to_string(), arguments }
 }
 
 fn parse_arguments(
     arguments: Vec<(Positioned<Name>, Positioned<ConstValue>)>,
-) -> Valid<serde_json::Value, String> {
-    let map: Valid<BTreeMap<String, serde_json::Value>, String> = Valid::from_iter(
-        arguments,
-        |(Positioned { pos: _, node: argument_name }, Positioned { pos, node: argument_node })| {
-            Valid::succeed(argument_name.to_string()).zip(parse_argument(pos, argument_node))
-        },
-    )
-    .map(|arguments| {
-        let mut data = BTreeMap::<String, serde_json::Value>::new();
-        for (name, argument) in arguments {
-            data.insert(name, argument);
-        }
-        data
-    });
-    map.map(|map| serde_json::Value::Object(map.into_iter().collect()))
+) -> serde_json::Value {
+    let map: BTreeMap<String, serde_json::Value> = arguments
+        .into_iter()
+        .map(
+            |(
+                Positioned { pos: _, node: argument_name },
+                Positioned { pos, node: argument_node },
+            )| {
+                (
+                    argument_name.to_string(),
+                    parse_argument(pos, argument_node),
+                )
+            },
+        )
+        .collect();
+    serde_json::Value::Object(map.into_iter().collect())
 }
 
-fn parse_argument(
-    pos: Pos,
-    argument_node: async_graphql_value::ConstValue,
-) -> Valid<serde_json::Value, String> {
-    match argument_node.into_json() {
-        Ok(value) => Valid::succeed(value),
-        Err(_) => Valid::fail(format!(
-            "Could not convert `ConstValue` to `Value` @{:}",
-            pos
-        )),
-    }
+fn parse_argument(argument_node: async_graphql_value::ConstValue) -> serde_json::Value {
+    argument_node.into_json().unwrap()
 }
 
 #[cfg(test)]
 mod tests {
-    use valid::Validator;
-
     use super::*;
 
     #[test]

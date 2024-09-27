@@ -1,8 +1,8 @@
 mod blueprint;
-mod parse;
+mod build;
 
 pub use blueprint::*;
-pub use parse::parse;
+pub use build::parse;
 pub use {async_graphql_parser, async_graphql_value, url};
 
 #[cfg(test)]

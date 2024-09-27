@@ -14,17 +14,25 @@ pub struct Blueprint {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, Ord, PartialOrd, Eq, PartialEq)]
-pub struct GraphId(pub String);
+pub struct Graph(String);
+impl Graph {
+    pub fn new<A: AsRef<str>>(name: A) -> Self {
+        Graph(name.as_ref().to_string())
+    }
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
 
 #[derive(Clone, Debug, Serialize, Deserialize, Ord, PartialOrd, Eq, PartialEq)]
 pub struct JoinGraph {
-    pub name: GraphId,
+    pub name: Graph,
     pub url: url::Url,
 }
 
 impl Blueprint {
     pub fn parse(doc: ServiceDocument) -> Valid<Blueprint, String> {
-        super::parse::parse(doc)
+        super::build::parse(doc)
     }
 }
 
@@ -144,7 +152,7 @@ pub struct UnionTypeDefinition {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JoinType {
-    pub graph: GraphId,
+    pub graph: Graph,
     pub key: Option<String>,
     #[serde(default = "default_false")]
     pub extension: bool,
@@ -163,12 +171,12 @@ fn default_false() -> bool {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JoinEnum {
-    pub graph: GraphId,
+    pub graph: Graph,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JoinField {
-    pub graph: Option<GraphId>,
+    pub graph: Option<Graph>,
     pub requires: Option<String>,
     pub provides: Option<String>,
     pub r#type: Option<String>,
@@ -179,13 +187,13 @@ pub struct JoinField {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JoinImplements {
-    pub graph: GraphId,
+    pub graph: Graph,
     pub interface: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JoinUnion {
-    pub graph: GraphId,
+    pub graph: Graph,
     pub member: String,
 }
 

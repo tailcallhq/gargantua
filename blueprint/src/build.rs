@@ -1,8 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use async_graphql_parser::{Pos, Positioned};
+use async_graphql_parser::Positioned;
 use async_graphql_value::{ConstValue, Name};
-use valid::Valid;
 
 use crate::{
     Blueprint, Definition, Directive, DirectiveDefinition, EnumValueDefinition, FieldDefinition,
@@ -34,7 +33,6 @@ pub fn parse(doc: async_graphql_parser::types::ServiceDocument) -> Blueprint {
     let mut directives = BTreeMap::<String, DirectiveDefinition>::new();
 
     for definition in doc.definitions.into_iter() {
-        
         match definition {
             async_graphql_parser::types::TypeSystemDefinition::Schema(Positioned {
                 pos: _,
@@ -66,7 +64,7 @@ pub fn parse(doc: async_graphql_parser::types::ServiceDocument) -> Blueprint {
                 root_schema.directives = directives;
             }
             async_graphql_parser::types::TypeSystemDefinition::Type(Positioned {
-                pos: type_pos,
+                pos: _,
                 node: type_node,
             }) => {
                 let name = type_node.name.clone().into_inner().to_string();
@@ -75,7 +73,7 @@ pub fn parse(doc: async_graphql_parser::types::ServiceDocument) -> Blueprint {
                 definitions.insert(name, definition);
             }
             async_graphql_parser::types::TypeSystemDefinition::Directive(Positioned {
-                pos: directive_pos,
+                pos: _,
                 node: directive_node,
             }) => {
                 let name = directive_node.name.clone().into_inner().to_string();
@@ -87,38 +85,37 @@ pub fn parse(doc: async_graphql_parser::types::ServiceDocument) -> Blueprint {
     let definitions = definitions.clone().into_values().collect::<Vec<_>>();
     let directives = directives.into_values().collect::<Vec<_>>();
 
-    let join_graph_enum = definitions.clone().into_iter().find_map(|definition| {
-        if let Definition::Enum(enumeration) = definition {
-            if enumeration.name == "join__Graph" {
-                let data =
-                    enumeration
-                        .enum_values
-                        .into_iter()
-                        .fold(Vec::new(), |mut acc, cur| {
-                            let mut join_graphs: Vec<JoinGraph> = extract_join!(
-                                cur.directives.into_iter(),
-                                "join__graph",
-                                JoinGraph
-                            );
-                            acc.append(&mut join_graphs);
-                            acc
-                        });
+    let join_graphs = definitions
+        .clone()
+        .into_iter()
+        .find_map(|definition| {
+            if let Definition::Enum(enumeration) = definition {
+                if enumeration.name == "join__Graph" {
+                    let data =
+                        enumeration
+                            .enum_values
+                            .into_iter()
+                            .fold(Vec::new(), |mut acc, cur| {
+                                let mut join_graphs: Vec<JoinGraph> = extract_join!(
+                                    cur.directives.into_iter(),
+                                    "join__graph",
+                                    JoinGraph
+                                );
+                                acc.append(&mut join_graphs);
+                                acc
+                            });
 
-                Some(data)
+                    Some(data)
+                } else {
+                    None
+                }
             } else {
                 None
             }
-        } else {
-            None
-        }
-    });
+        })
+        .expect("Enumeration `join__Graph` is not found");
 
-    Blueprint {
-        definitions,
-        schema: root_schema,
-        directives,
-        join_graphs,
-    }
+    Blueprint { definitions, schema: root_schema, directives, join_graphs }
 }
 
 fn parse_directive_definition(
@@ -128,7 +125,11 @@ fn parse_directive_definition(
     let repeatable = directive_node.is_repeatable;
     let description = directive_node.description.map(|d| d.to_string());
 
-    let arguments = directive_node.arguments.into_iter().map(|Positioned { pos: _, node: input_field_node }| parse_input_field(input_field_node)).collect();
+    let arguments: Vec<_> = directive_node
+        .arguments
+        .into_iter()
+        .map(|Positioned { pos: _, node: input_field_node }| parse_input_field(input_field_node))
+        .collect();
 
     let locations: Vec<String> = directive_node
         .locations
@@ -170,22 +171,21 @@ fn parse_directive_definition(
         })
         .collect();
 
-    arguments.map(|arguments| DirectiveDefinition {
-        name,
-        description,
-        arguments,
-        repeatable,
-        locations,
-    })
+    DirectiveDefinition { name, description, arguments, repeatable, locations }
 }
 
 fn parse_type(type_node: async_graphql_parser::types::TypeDefinition) -> Definition {
     let name = type_node.name.to_string();
     let description = type_node.description.map(|d| d.to_string());
-    let directives = type_node.directives.clone().into_iter().map(|Positioned { pos: _, node: directive_node }| parse_directive(directive_node));
+    let directives: Vec<_> = type_node
+        .directives
+        .clone()
+        .into_iter()
+        .map(|Positioned { pos: _, node: directive_node }| parse_directive(directive_node))
+        .collect();
 
     match type_node.kind {
-        async_graphql_parser::types::TypeKind::Scalar => directives.map(|directives| {
+        async_graphql_parser::types::TypeKind::Scalar => {
             let join_types: Vec<JoinType> =
                 extract_join!(directives.clone().into_iter(), "join__type", JoinType);
             Definition::Scalar(crate::ScalarTypeDefinition {
@@ -194,12 +194,13 @@ fn parse_type(type_node: async_graphql_parser::types::TypeDefinition) -> Definit
                 description,
                 join_types,
             })
-        }),
+        }
         async_graphql_parser::types::TypeKind::Object(object_type) => {
-            let fields = Valid::from_iter(
-                object_type.fields,
-                |Positioned { pos: _, node: field_node }| parse_field(field_node),
-            );
+            let fields = object_type
+                .fields
+                .into_iter()
+                .map(|Positioned { pos: _, node: field_node }| parse_field(field_node))
+                .collect();
 
             let implements = object_type
                 .implements
@@ -207,46 +208,43 @@ fn parse_type(type_node: async_graphql_parser::types::TypeDefinition) -> Definit
                 .map(|name| name.to_string())
                 .collect::<BTreeSet<String>>();
 
-            directives.zip(fields).map(|(directives, fields)| {
-                let join_types: Vec<JoinType> =
-                    extract_join!(directives.clone().into_iter(), "join__type", JoinType);
-                let join_implements: Vec<JoinImplements> = extract_join!(
-                    directives.clone().into_iter(),
-                    "join__implements",
-                    JoinImplements
-                );
+            let join_types: Vec<JoinType> =
+                extract_join!(directives.clone().into_iter(), "join__type", JoinType);
+            let join_implements: Vec<JoinImplements> = extract_join!(
+                directives.clone().into_iter(),
+                "join__implements",
+                JoinImplements
+            );
 
-                Definition::Object(crate::ObjectTypeDefinition {
-                    name,
-                    fields,
-                    description,
-                    implements,
-                    join_types,
-                    join_implements,
-                })
+            Definition::Object(crate::ObjectTypeDefinition {
+                name,
+                fields,
+                description,
+                implements,
+                join_types,
+                join_implements,
             })
         }
         async_graphql_parser::types::TypeKind::Interface(interface_type) => {
-            let fields = Valid::from_iter(
-                interface_type.fields,
-                |Positioned { pos: _, node: field_node }| parse_field(field_node),
-            );
+            let fields = interface_type
+                .fields
+                .into_iter()
+                .map(|Positioned { pos: _, node: field_node }| parse_field(field_node))
+                .collect();
 
-            directives.zip(fields).map(|(directives, fields)| {
-                let join_types: Vec<JoinType> =
-                    extract_join!(directives.clone().into_iter(), "join__type", JoinType);
-                let join_implements: Vec<JoinImplements> = extract_join!(
-                    directives.clone().into_iter(),
-                    "join__implements",
-                    JoinImplements
-                );
-                Definition::Interface(crate::InterfaceTypeDefinition {
-                    name,
-                    fields,
-                    description,
-                    join_implements,
-                    join_types,
-                })
+            let join_types: Vec<JoinType> =
+                extract_join!(directives.clone().into_iter(), "join__type", JoinType);
+            let join_implements: Vec<JoinImplements> = extract_join!(
+                directives.clone().into_iter(),
+                "join__implements",
+                JoinImplements
+            );
+            Definition::Interface(crate::InterfaceTypeDefinition {
+                name,
+                fields,
+                description,
+                join_implements,
+                join_types,
             })
         }
         async_graphql_parser::types::TypeKind::Union(union_type) => {
@@ -256,27 +254,29 @@ fn parse_type(type_node: async_graphql_parser::types::TypeDefinition) -> Definit
                 .map(|type_name| type_name.into_inner().to_string())
                 .collect();
 
-            directives.map(|directives| {
-                let join_types: Vec<JoinType> =
-                    extract_join!(directives.clone().into_iter(), "join__type", JoinType);
-                let join_unions: Vec<JoinUnion> = extract_join!(
-                    directives.clone().into_iter(),
-                    "join__unionMember",
-                    JoinUnion
-                );
+            let join_types: Vec<JoinType> =
+                extract_join!(directives.clone().into_iter(), "join__type", JoinType);
+            let join_unions: Vec<JoinUnion> = extract_join!(
+                directives.clone().into_iter(),
+                "join__unionMember",
+                JoinUnion
+            );
 
-                Definition::Union(crate::UnionTypeDefinition {
-                    name,
-                    directives,
-                    description,
-                    types,
-                    join_types,
-                    join_unions,
-                })
+            Definition::Union(crate::UnionTypeDefinition {
+                name,
+                directives,
+                description,
+                types,
+                join_types,
+                join_unions,
             })
         }
         async_graphql_parser::types::TypeKind::Enum(enum_type) => {
-            let enum_values = enum_type.values.into_iter().map(|Positioned { pos: _, node: enum_node }| parse_enum(enum_node)).collect();
+            let enum_values = enum_type
+                .values
+                .into_iter()
+                .map(|Positioned { pos: _, node: enum_node }| parse_enum(enum_node))
+                .collect();
 
             let join_types: Vec<JoinType> =
                 extract_join!(directives.clone().into_iter(), "join__type", JoinType);
@@ -289,7 +289,13 @@ fn parse_type(type_node: async_graphql_parser::types::TypeDefinition) -> Definit
             })
         }
         async_graphql_parser::types::TypeKind::InputObject(input_object_type) => {
-            let fields = input_object_type.fields.into_iter().map(|Positioned { pos: _, node: input_field_node }| parse_input_field(input_field_node));
+            let fields = input_object_type
+                .fields
+                .into_iter()
+                .map(|Positioned { pos: _, node: input_field_node }| {
+                    parse_input_field(input_field_node)
+                })
+                .collect();
 
             let join_types: Vec<JoinType> =
                 extract_join!(directives.into_iter(), "join__type", JoinType);
@@ -328,10 +334,11 @@ fn parse_field(field_node: async_graphql_parser::types::FieldDefinition) -> Fiel
         .map(|Positioned { pos: _, node: arg_node }| parse_input_field(arg_node))
         .collect();
 
-    let directives = field_node
+    let directives: Vec<_> = field_node
         .directives
         .into_iter()
-        .map(|Positioned { pos: _, node: directive_node }| parse_directive(directive_node));
+        .map(|Positioned { pos: _, node: directive_node }| parse_directive(directive_node))
+        .collect();
 
     let join_fields: Vec<JoinField> =
         extract_join!(directives.clone().into_iter(), "join__field", JoinField);
@@ -348,7 +355,7 @@ fn parse_input_field(
 
     let default_value = input_field_node
         .default_value
-        .map(|Positioned { pos, node: argument_value }| parse_argument(argument_value));
+        .map(|Positioned { pos: _, node: argument_value }| parse_argument(argument_value));
 
     let directives: Vec<_> = input_field_node
         .directives
@@ -417,13 +424,8 @@ fn parse_arguments(
         .map(
             |(
                 Positioned { pos: _, node: argument_name },
-                Positioned { pos, node: argument_node },
-            )| {
-                (
-                    argument_name.to_string(),
-                    parse_argument(pos, argument_node),
-                )
-            },
+                Positioned { pos: _, node: argument_node },
+            )| { (argument_name.to_string(), parse_argument(argument_node)) },
         )
         .collect();
     serde_json::Value::Object(map.into_iter().collect())

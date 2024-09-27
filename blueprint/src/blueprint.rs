@@ -3,7 +3,6 @@ use std::collections::BTreeSet;
 use async_graphql_parser::types::ServiceDocument;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use valid::{Valid, ValidationError, Validator};
 
 use crate::{error::Error, index::Index};
 

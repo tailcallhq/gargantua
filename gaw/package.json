@@ -1,0 +1,16 @@
+{
+  "name": "gaw",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "build-workflows": "gwf build && mv .github/** ../.github/workflows"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "github-actions-workflow-ts": "^0.3.1"
+  }
+}

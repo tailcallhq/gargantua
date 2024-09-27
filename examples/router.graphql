@@ -106,6 +106,7 @@ type Review @join__type(graph: REVIEWS) {
   pictures: [Picture!]!
   product: Product! @join__field(graph: REVIEWS, provides: "price")
   author: User!
+  score: Int!
 }
 
 enum Trustworthiness @join__type(graph: REVIEWS) {

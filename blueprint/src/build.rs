@@ -443,10 +443,8 @@ mod tests {
     fn test_parse() {
         let graphql = resource::resource_str!("../examples/router.graphql");
         let document = async_graphql_parser::parse_schema(graphql).unwrap();
-        let blueprint = parse(document)
-            .map(|b| serde_json::to_string_pretty(&b).unwrap())
-            .to_result()
-            .unwrap();
+        let blueprint = parse(document);
+        let blueprint = serde_json::to_string_pretty(&blueprint).unwrap();
         insta::assert_snapshot!(blueprint);
     }
 }

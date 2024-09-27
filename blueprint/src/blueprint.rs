@@ -34,8 +34,7 @@ pub struct JoinGraph {
 
 impl Blueprint {
     pub fn parse_doc(doc: ServiceDocument) -> Blueprint {
-        // TODO: drop the unwrap after parse drops the Valid type
-        super::build::parse(doc).to_result().unwrap()
+        super::build::parse(doc)
     }
 
     pub fn parse(schema: String) -> Result<Blueprint, Error> {

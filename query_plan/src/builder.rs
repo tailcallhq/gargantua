@@ -22,7 +22,6 @@ impl Builder {
             }) => self.build_query_plan(&node.selection_set.node, "Query"),
             _ => todo!(),
         };
-        println!(" paths: {:#?}", paths);
         QueryPlan::Sequence(vec![])
     }
 
@@ -203,7 +202,7 @@ mod test {
         let p_query = async_graphql_parser::parse_query(query).unwrap();
         let graphql = resource::resource_str!("../examples/router.graphql");
         let document = async_graphql_parser::parse_schema(graphql).unwrap();
-        let blueprint = Blueprint::parse(document).to_result().unwrap();
+        let blueprint = Blueprint::parse_doc(document).to_result().unwrap();
 
         // insta::assert_debug_snapshot!(blueprint);
 

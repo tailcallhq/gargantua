@@ -3,9 +3,9 @@ use std::collections::BTreeSet;
 use async_graphql_parser::types::ServiceDocument;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use valid::Valid;
+use valid::{Valid, ValidationError, Validator};
 
-use crate::index::Index;
+use crate::{error::Error, index::Index};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Blueprint {
@@ -33,8 +33,17 @@ pub struct JoinGraph {
 }
 
 impl Blueprint {
-    pub fn parse(doc: ServiceDocument) -> Valid<Blueprint, String> {
-        super::build::parse(doc)
+    pub fn parse_doc(doc: ServiceDocument) -> Blueprint {
+        // TODO: drop the unwrap after parse drops the Valid type
+        super::build::parse(doc).to_result().unwrap()
+    }
+
+    pub fn parse(schema: String) -> Valid<Blueprint, Error> {
+        Valid::from(
+            async_graphql_parser::parse_schema(schema)
+                .map_err(|e| ValidationError::new(Error::from(e))),
+        )
+        .map(|document| Blueprint::parse_doc(document))
     }
 
     pub fn to_index(&self) -> Index {

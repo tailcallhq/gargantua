@@ -22,6 +22,8 @@ macro_rules! extract_join {
     };
 }
 
+// TODO: drop Valid from here
+// Reading a super-graph configuration is infallible
 pub fn parse(doc: async_graphql_parser::types::ServiceDocument) -> Valid<Blueprint, String> {
     let mut root_schema = Valid::succeed(SchemaDefinition {
         query: None,

@@ -32,7 +32,7 @@ pub struct JoinGraph {
 
 impl Blueprint {
     pub fn parse(doc: ServiceDocument) -> Valid<Blueprint, String> {
-        super::parse::parse(doc)
+        super::build::parse(doc)
     }
 }
 

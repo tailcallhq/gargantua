@@ -20,14 +20,9 @@ pub enum QueryPlan<Value> {
     },
 }
 
-impl<A: Default> QueryPlan<A> {
-    pub fn fetch(service: Graph, type_name: TypeName) -> Self {
-        QueryPlan::Fetch {
-            service,
-            query: SelectionSet::default(),
-            representations: None,
-            type_name,
-        }
+impl<A> QueryPlan<A> {
+    pub fn fetch(service: Graph, type_name: TypeName, query: SelectionSet<A>) -> Self {
+        QueryPlan::Fetch { service, query, representations: None, type_name }
     }
 
     pub fn try_new(query: String, index: Index) -> Result<Self, Error> {

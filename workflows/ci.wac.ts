@@ -15,7 +15,7 @@ const validateWorkflows = new Step({
   name: "Validate workflows",
   run: `
     npm i
-    npm run build-workflows
+    npm run generate-workflows
     if [[ $(git diff --name-only .github/workflows/) ]]; then
       echo "Workflows are out of sync. Please regenerate them."
       exit 1
@@ -51,7 +51,7 @@ testJob.addSteps([
   runTestsStep,
 ]);
 
-export const rustTestWorkflow = new Workflow("rust-test", {
+export const mainWorkflow = new Workflow("CI", {
   name: "Rust Test",
   on: {
     push: {
@@ -63,4 +63,4 @@ export const rustTestWorkflow = new Workflow("rust-test", {
   },
 });
 
-rustTestWorkflow.addJob(testJob);
+mainWorkflow.addJob(testJob);

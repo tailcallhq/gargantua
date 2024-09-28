@@ -1,3 +1,5 @@
+use std::vec;
+
 use async_graphql_parser::types as Q;
 use blueprint::{Graph, Index};
 use valid::Valid;
@@ -19,6 +21,39 @@ impl<A> Builder<A> {
             Graph::new("Product"),
             TypeName::new("Query"),
             SelectionSet { fields: vec![] },
+        ))
+    }
+
+    fn build_operation(&self, operation: &Q::OperationDefinition) -> Valid<QueryPlan<A>, String> {
+        match operation.ty {
+            Q::OperationType::Query => self.build_query(operation),
+            Q::OperationType::Mutation => todo!(),
+            Q::OperationType::Subscription => todo!(),
+        }
+    }
+
+    fn build_query(&self, operation: &Q::OperationDefinition) -> Valid<QueryPlan<A>, String> {
+        let selection_set = SelectionSet { fields: vec![] };
+        let mut fields = Vec::new();
+        for selection in operation.selection_set.node.items.iter() {
+            let selection = selection.node;
+
+            match selection {
+                Q::Selection::Field(pos) => {
+                    let field = pos.node;
+                    let name = field.name.node;
+                    fields
+                }
+                Q::Selection::FragmentSpread(pos) => todo!(),
+                Q::Selection::InlineFragment(pos) => todo!(),
+            };
+
+            todo!()
+        }
+        Valid::succeed(QueryPlan::fetch(
+            Graph::new("Product"),
+            TypeName::new("Query"),
+            query,
         ))
     }
 }

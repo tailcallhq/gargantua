@@ -11,20 +11,20 @@ const setupNode = new Step({
   with: { "node-version": "20" },
 });
 
-const validateWorkflows = new Step({
+const checkWorkflow = new Step({
   name: "Validate workflows",
-  run: `
-    npm i
-    npm run generate-workflows
-    if [[ $(git diff --name-only .github/workflows/) ]]; then
-      echo "Workflows are out of sync. Please regenerate them."
-      exit 1
-    fi
-  `,
+  run: [
+    "npm i",
+    "npm run generate-workflows",
+    `if [[ $(git diff --name-only .github/workflows/) ]]; then
+      echo "Workflows are out of sync. Please regenerate them.";
+      exit 1;
+    fi`,
+  ].join("\n"),
   shell: "bash",
 });
 
-const setupRustStep = new Step({
+const setupRust = new Step({
   name: "Setup Rust",
   uses: "actions-rs/toolchain@v1",
   with: {
@@ -34,7 +34,7 @@ const setupRustStep = new Step({
   },
 });
 
-const runTestsStep = new Step({
+const runTests = new Step({
   name: "Run tests",
   run: "cargo test --workspace",
 });
@@ -43,15 +43,9 @@ const testJob = new NormalJob("Test", {
   "runs-on": "ubuntu-latest",
 });
 
-testJob.addSteps([
-  checkoutStep,
-  setupNode,
-  validateWorkflows,
-  setupRustStep,
-  runTestsStep,
-]);
+testJob.addSteps([checkoutStep, setupNode, checkWorkflow, setupRust, runTests]);
 
-export const mainWorkflow = new Workflow("CI", {
+export const mainWorkflow = new Workflow("ci", {
   name: "Rust Test",
   on: {
     push: {

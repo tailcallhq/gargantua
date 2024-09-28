@@ -16,7 +16,7 @@ pub enum QueryPlan<Value> {
         type_name: TypeName,
     },
     Flatten {
-        path: Lens,
+        select: Lens,
         plan: Box<QueryPlan<Value>>,
     },
 }
@@ -26,10 +26,19 @@ impl<A> QueryPlan<A> {
         QueryPlan::Fetch { service, query, representations: None, type_name }
     }
 
+    // Tries to create a new Query Plan from a GraphQL query and a Blueprint Index.
     pub fn try_new(query: String, index: Index) -> Result<Self, Error> {
         let doc = async_graphql_parser::parse_query(&query)?;
         let builder: Builder<A> = Builder::<A>::new(index);
         Ok(builder.build(&doc).to_result()?)
+    }
+
+    // Sequentially executes one plan after the other
+    pub fn and_then(self, select: Lens, plan: QueryPlan<A>) -> Self {
+        QueryPlan::Sequence(vec![
+            self,
+            QueryPlan::Flatten { select, plan: Box::new(plan) },
+        ])
     }
 }
 

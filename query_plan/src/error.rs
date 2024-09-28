@@ -1,7 +1,7 @@
 use derive_more::From;
 use valid::ValidationError;
 
-#[derive(From)]
+#[derive(From, Debug)]
 pub enum Error {
     Blueprint(blueprint::error::Error),
     Parse(async_graphql_parser::Error),

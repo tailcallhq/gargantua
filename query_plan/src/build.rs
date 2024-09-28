@@ -25,21 +25,22 @@ impl<A> Builder<A> {
 
 #[cfg(test)]
 mod test {
-    use super::Builder;
-    use crate::QueryPlan;
     use blueprint::Blueprint;
     use insta::assert_debug_snapshot;
-    use valid::{Valid, Validator};
+    use resource::resource_str;
+
+    use crate::QueryPlan;
 
     #[test]
     fn test() {
         // Blueprint
-        let graphql = resource::resource_str!("../examples/router.graphql");
-        let blueprint = Blueprint::parse(graphql).to_result().unwrap();
+        let graphql = resource_str!("../fixtures/router.graphql");
+        let blueprint = Blueprint::parse(graphql.as_ref()).unwrap();
 
         // Query
         let query = "query { topProducts { name reviews { score } reviews { description } } }";
-        let plan = QueryPlan::try_new(query.to_string(), blueprint.to_index()).unwrap();
+        let plan: QueryPlan<()> =
+            QueryPlan::try_new(query.to_string(), blueprint.to_index()).unwrap();
 
         assert_debug_snapshot!(plan);
     }

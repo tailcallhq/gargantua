@@ -2,7 +2,8 @@ use blueprint::{Graph, Index};
 use derive_setters::Setters;
 use valid::Validator;
 
-use crate::{error::Error, Builder};
+use crate::error::Error;
+use crate::Builder;
 
 #[derive(Debug, Clone)]
 pub enum QueryPlan<Value> {

@@ -1,0 +1,16 @@
+---
+source: query_plan/src/build.rs
+expression: plan
+---
+Fetch {
+    service: Graph(
+        "Product",
+    ),
+    query: SelectionSet {
+        fields: [],
+    },
+    representations: None,
+    type_name: TypeName(
+        "Query",
+    ),
+}

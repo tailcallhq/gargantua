@@ -4,7 +4,8 @@ use async_graphql_parser::types::ServiceDocument;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::{error::Error, index::Index};
+use crate::error::Error;
+use crate::index::Index;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Blueprint {
@@ -36,7 +37,7 @@ impl Blueprint {
         super::build::parse(doc)
     }
 
-    pub fn parse(schema: String) -> Result<Blueprint, Error> {
+    pub fn parse(schema: &str) -> Result<Blueprint, Error> {
         let document = async_graphql_parser::parse_schema(schema)?;
         Ok(Blueprint::parse_doc(document))
     }

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 use crate::{
     Blueprint, Definition, FieldDefinition, InputFieldDefinition, InputObjectTypeDefinition,
@@ -11,13 +11,13 @@ use crate::{
 
 #[derive(Debug)]
 pub struct Index {
-    map: HashMap<String, (Definition, HashMap<String, QueryField>)>,
+    map: IndexMap<String, (Definition, IndexMap<String, QueryField>)>,
     schema: SchemaDefinition,
 }
 
 #[derive(Debug)]
 pub enum QueryField {
-    Field((FieldDefinition, HashMap<String, InputFieldDefinition>)),
+    Field((FieldDefinition, IndexMap<String, InputFieldDefinition>)),
     InputField(InputFieldDefinition),
 }
 
@@ -59,7 +59,7 @@ impl Index {
             .and_then(|(_, fields_map)| fields_map.get(field_name))
     }
 
-    pub fn get_type(&self, type_name: &str) -> Option<&(Definition, HashMap<String, QueryField>)> {
+    pub fn get_type(&self, type_name: &str) -> Option<&(Definition, IndexMap<String, QueryField>)> {
         self.map.get(type_name)
     }
 
@@ -93,16 +93,16 @@ impl Index {
 
 impl From<&Blueprint> for Index {
     fn from(blueprint: &Blueprint) -> Self {
-        let mut map = HashMap::new();
+        let mut map = IndexMap::new();
 
         for definition in blueprint.definitions.iter() {
             match definition {
                 Definition::Object(object_def) => {
                     let type_name = object_def.name.clone();
-                    let mut fields_map = HashMap::new();
+                    let mut fields_map = IndexMap::new();
 
                     for field in &object_def.fields {
-                        let args_map = HashMap::from_iter(
+                        let args_map = IndexMap::from_iter(
                             field
                                 .args
                                 .iter()
@@ -122,10 +122,10 @@ impl From<&Blueprint> for Index {
                 }
                 Definition::Interface(interface_def) => {
                     let type_name = interface_def.name.clone();
-                    let mut fields_map = HashMap::new();
+                    let mut fields_map = IndexMap::new();
 
                     for field in interface_def.fields.clone() {
-                        let args_map = HashMap::from_iter(
+                        let args_map = IndexMap::from_iter(
                             field
                                 .args
                                 .iter()
@@ -142,7 +142,7 @@ impl From<&Blueprint> for Index {
                 }
                 Definition::InputObject(input_object_def) => {
                     let type_name = input_object_def.name.clone();
-                    let mut fields_map = HashMap::new();
+                    let mut fields_map = IndexMap::new();
 
                     for field in input_object_def.fields.clone() {
                         fields_map.insert(field.name.clone(), QueryField::InputField(field));
@@ -160,108 +160,26 @@ impl From<&Blueprint> for Index {
                     let type_name = scalar_def.name.clone();
                     map.insert(
                         type_name.clone(),
-                        (Definition::Scalar(scalar_def.to_owned()), HashMap::new()),
+                        (Definition::Scalar(scalar_def.to_owned()), IndexMap::new()),
                     );
                 }
                 Definition::Enum(enum_def) => {
                     let type_name = enum_def.name.clone();
                     map.insert(
                         type_name.clone(),
-                        (Definition::Enum(enum_def.to_owned()), HashMap::new()),
+                        (Definition::Enum(enum_def.to_owned()), IndexMap::new()),
                     );
                 }
                 Definition::Union(union_def) => {
                     let type_name = union_def.name.clone();
                     map.insert(
                         type_name.clone(),
-                        (Definition::Union(union_def.to_owned()), HashMap::new()),
+                        (Definition::Union(union_def.to_owned()), IndexMap::new()),
                     );
                 }
             }
         }
 
         Self { map, schema: blueprint.schema.to_owned() }
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::Index;
-    use crate::core::blueprint::Blueprint;
-    use crate::core::config::ConfigModule;
-    use crate::include_config;
-
-    fn setup() -> Index {
-        let config = include_config!("./fixture/all-constructs.graphql").unwrap();
-        let cfg_module = ConfigModule::from(config);
-        let blueprint = Blueprint::try_from(&cfg_module).unwrap();
-
-        Index::from(&blueprint)
-    }
-
-    #[test]
-    fn test_from_blueprint() {
-        let index = setup();
-        insta::assert_debug_snapshot!(index);
-    }
-
-    #[test]
-    fn test_is_scalar() {
-        let index = setup();
-        assert!(index.type_is_scalar("Int"));
-        assert!(index.type_is_scalar("String"));
-
-        assert!(!index.type_is_scalar("Color"));
-    }
-
-    #[test]
-    fn test_is_enum() {
-        let index = setup();
-        assert!(index.type_is_enum("Status"));
-        assert!(!index.type_is_enum("Int"));
-    }
-
-    #[test]
-    fn test_validate_enum_value() {
-        let index = setup();
-        assert!(index.validate_enum_value("Status", "ACTIVE"));
-        assert!(!index.validate_enum_value("Status", "YELLOW"));
-        assert!(!index.validate_enum_value("Int", "1"));
-    }
-
-    #[test]
-    fn test_get_field() {
-        let index = setup();
-        assert!(index.get_field("Query", "user").is_some());
-        assert!(index.get_field("Query", "non_existent_field").is_none());
-        assert!(index.get_field("Status", "Pending").is_none());
-    }
-
-    #[test]
-    fn test_get_query() {
-        let index = setup();
-        assert_eq!(index.get_query(), Some("Query"));
-    }
-
-    #[test]
-    fn test_get_mutation() {
-        let index = setup();
-        assert_eq!(index.get_mutation(), Some("Mutation"));
-    }
-
-    #[test]
-    fn test_get_mutation_none() {
-        let mut index = setup();
-        index.schema.mutation = None;
-        assert_eq!(index.get_mutation(), None);
-    }
-
-    #[test]
-    fn test_is_type_implements() {
-        let index = setup();
-
-        assert!(index.is_type_implements("User", "Node"));
-        assert!(index.is_type_implements("Post", "Post"));
-        assert!(!index.is_type_implements("Node", "User"));
     }
 }

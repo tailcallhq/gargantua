@@ -1,4 +1,7 @@
-use blueprint::{Graph, Index};
+use std::rc::Rc;
+
+use async_graphql_parser::types::ExecutableDocument;
+use blueprint::{Graph, Index, JoinField, JoinGraph};
 use derive_setters::Setters;
 use valid::Validator;
 
@@ -28,9 +31,10 @@ impl<A> QueryPlan<A> {
 
     // Tries to create a new Query Plan from a GraphQL query and a Blueprint Index.
     pub fn try_new(query: String, index: Index) -> Result<Self, Error> {
-        let doc = async_graphql_parser::parse_query(&query)?;
-        let builder: Builder<A> = Builder::<A>::new(index);
-        Ok(builder.build(&doc).to_result()?)
+        todo!()
+        // let doc = async_graphql_parser::parse_query(&query)?;
+        // let builder: Builder<A> = Builder::<A>::new(index);
+        // Ok(builder.build(&doc).to_result()?)
     }
 
     // Sequentially executes one plan after the other
@@ -60,6 +64,12 @@ pub struct SelectionSet<Value> {
     pub fields: Vec<Field<Value>>,
 }
 
+impl<Value> SelectionSet<Value> {
+    pub fn try_new(doc: &ExecutableDocument, index: Rc<Index>) -> Result<Self, Error> {
+        Builder::new(index)
+    }
+}
+
 #[derive(Debug, Clone, Setters)]
 pub struct Field<Value> {
     pub name: String,
@@ -70,6 +80,19 @@ pub struct Field<Value> {
     /// When set to true the field is considered to be used internally for
     /// querying sub-graphs and should not be exposed to the user.
     pub is_hidden: bool,
+
+    /// Possible Graphs from where the field can be queried from.
+    pub graph: Vec<Graph>,
+
+    /// Internal readonly information from the Blueprint Index.
+    #[setters(skip)]
+    join_field: Vec<JoinField>,
+}
+
+impl<A> Field<A> {
+    pub fn join_field(&self) -> &[JoinField] {
+        &self.join_field
+    }
 }
 
 #[derive(Debug, Clone, Setters)]

@@ -1,9 +1,9 @@
 use super::append::Append;
-use super::ValidationError;
+use super::Error;
 use crate::Cause;
 
 #[derive(Debug, PartialEq)]
-pub struct Valid<A, E>(Result<A, ValidationError<E>>);
+pub struct Valid<A, E>(Result<A, Error<E>>);
 
 pub trait Validator<A, E>: Sized {
     fn map<A1>(self, f: impl FnOnce(A) -> A1) -> Valid<A1, E> {
@@ -66,7 +66,7 @@ pub trait Validator<A, E>: Sized {
         }
     }
 
-    fn to_result(self) -> Result<A, ValidationError<E>>;
+    fn to_result(self) -> Result<A, Error<E>>;
 
     fn and_then<B>(self, f: impl FnOnce(A) -> Valid<B, E>) -> Valid<B, E> {
         match self.to_result() {
@@ -109,7 +109,7 @@ impl<A, E> Valid<A, E> {
         ))
     }
 
-    pub fn from_validation_err(error: ValidationError<E>) -> Self {
+    pub fn from_validation_err(error: Error<E>) -> Self {
         Valid(Err(error))
     }
 
@@ -126,7 +126,7 @@ impl<A, E> Valid<A, E> {
         mut f: impl FnMut(A) -> Valid<B, E>,
     ) -> Valid<Vec<B>, E> {
         let mut values: Vec<B> = Vec::new();
-        let mut errors: ValidationError<E> = ValidationError::empty();
+        let mut errors: Error<E> = Error::empty();
         for a in iter.into_iter() {
             match f(a).to_result() {
                 Ok(b) => {
@@ -158,7 +158,7 @@ impl<A, E> Valid<A, E> {
 }
 
 impl<A, E> Validator<A, E> for Valid<A, E> {
-    fn to_result(self) -> Result<A, ValidationError<E>> {
+    fn to_result(self) -> Result<A, Error<E>> {
         self.0
     }
 
@@ -178,7 +178,7 @@ impl<A, E> Fusion<A, E> {
 }
 
 impl<A, E> Validator<A, E> for Fusion<A, E> {
-    fn to_result(self) -> Result<A, ValidationError<E>> {
+    fn to_result(self) -> Result<A, Error<E>> {
         self.0.to_result()
     }
     fn is_succeed(&self) -> bool {
@@ -186,8 +186,8 @@ impl<A, E> Validator<A, E> for Fusion<A, E> {
     }
 }
 
-impl<A, E> From<Result<A, ValidationError<E>>> for Valid<A, E> {
-    fn from(value: Result<A, ValidationError<E>>) -> Self {
+impl<A, E> From<Result<A, Error<E>>> for Valid<A, E> {
+    fn from(value: Result<A, Error<E>>) -> Self {
         match value {
             Ok(a) => Valid::succeed(a),
             Err(e) => Valid::from_validation_err(e),
@@ -213,7 +213,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::{Cause, ValidationError};
+    use super::{Cause, Error};
     use crate::{Valid, Validator};
 
     #[test]
@@ -310,7 +310,7 @@ mod tests {
     #[test]
     fn test_to_result() {
         let result = Valid::<(), i32>::fail(1).to_result().unwrap_err();
-        assert_eq!(result, ValidationError::new(1));
+        assert_eq!(result, Error::new(1));
     }
 
     #[test]

@@ -39,11 +39,16 @@ const runTests = new Step({
   run: "cargo test --workspace",
 });
 
+const wasmBuildStep = new Step({
+  name: "Build for WASM",
+  run: "cargo build --target wasm32-unknown-unknown --workspace",
+});
+
 const testJob = new NormalJob("Test", {
   "runs-on": "ubuntu-latest",
 });
 
-testJob.addSteps([checkoutStep, setupNode, checkWorkflow, setupRust, runTests]);
+testJob.addSteps([checkoutStep, setupNode, checkWorkflow, setupRust, wasmBuildStep, runTests]);
 
 export const mainWorkflow = new Workflow("ci", {
   name: "Rust Test",

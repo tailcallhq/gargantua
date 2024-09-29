@@ -10,8 +10,28 @@ jobs:
   Test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - &ref_1
+        name: Checkout
         uses: actions/checkout@v4
+      - &ref_0
+        name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - name: Run Tests
+        run: cargo test --workspace
+  wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - *ref_0
+      - run: rustup target add wasm32-unknown-unknown
+      - run: cargo build --target wasm32-unknown-unknown --workspace
+  Setup:
+    runs-on: ubuntu-latest
+    steps:
+      - *ref_1
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -21,13 +41,3 @@ jobs:
           npm i
           npm run build
           npm run check-workflows
-      - name: Setup Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-      - name: Build for WASM
-        run: cargo build --target wasm32-unknown-unknown --workspace
-      - name: Run Tests
-        run: cargo test --workspace

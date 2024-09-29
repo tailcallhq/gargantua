@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["blueprint", "valid", "query_plan"]
+members = ["workspace/blueprint", "workspace/valid", "workspace/query_plan"]
 
 [workspace.dependencies]
 wasm-bindgen = "0.2"

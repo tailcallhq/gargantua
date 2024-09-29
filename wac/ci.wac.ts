@@ -5,26 +5,7 @@ const checkoutStep = new Step({
   uses: "actions/checkout@v4",
 });
 
-const setupNode = new Step({
-  name: "Setup Node",
-  uses: "actions/setup-node@v4",
-  with: { "node-version": "20" },
-});
-
-const checkWorkflow = new Step({
-  name: "Validate workflows",
-  run: [
-    "npm i",
-    "npm run generate-workflows",
-    `if [[ $(git diff --name-only .github/workflows/) ]]; then
-      echo "Workflows are out of sync. Please regenerate them.";
-      exit 1;
-    fi`,
-  ].join("\n"),
-  shell: "bash",
-});
-
-const setupRust = new Step({
+const setupRustStep = new Step({
   name: "Setup Rust",
   uses: "actions-rs/toolchain@v1",
   with: {
@@ -34,7 +15,17 @@ const setupRust = new Step({
   },
 });
 
-const runTests = new Step({
+const runRustfmtStep = new Step({
+  name: "Run rustfmt",
+  run: "cargo fmt --all -- --check",
+});
+
+const runClippyStep = new Step({
+  name: "Run clippy",
+  run: "cargo clippy --all -- -D warnings",
+});
+
+const runTestsStep = new Step({
   name: "Run tests",
   run: "cargo test --workspace",
 });
@@ -43,9 +34,15 @@ const testJob = new NormalJob("Test", {
   "runs-on": "ubuntu-latest",
 });
 
-testJob.addSteps([checkoutStep, setupNode, checkWorkflow, setupRust, runTests]);
+testJob.addSteps([
+  checkoutStep,
+  setupRustStep,
+  runRustfmtStep,
+  runClippyStep,
+  runTestsStep,
+]);
 
-export const mainWorkflow = new Workflow("ci", {
+export const rustTestWorkflow = new Workflow("rust-test", {
   name: "Rust Test",
   on: {
     push: {
@@ -57,4 +54,4 @@ export const mainWorkflow = new Workflow("ci", {
   },
 });
 
-mainWorkflow.addJob(testJob);
+rustTestWorkflow.addJob(testJob);

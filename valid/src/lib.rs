@@ -1,10 +1,12 @@
 mod append;
 mod cause;
 mod error;
+mod transform;
 mod valid;
 
 pub use cause::*;
 pub use error::*;
+pub use transform::*;
 pub use valid::*;
 
 /// Moral equivalent of TryFrom for validation purposes

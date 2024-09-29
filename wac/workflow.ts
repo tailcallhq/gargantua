@@ -14,20 +14,10 @@ const setupNode = new Step({
 })
 
 const checkWorkflow = new Step({
-  name: 'Validate workflows',
-  run: [
-    'npm i',
-    'npm run generate-workflows',
-    `
-    if [[ $(git diff --name-only .github/workflows/) ]]; then
-      echo "Workflows are out of sync. Please regenerate them.";
-      exit 1;
-    fi
-    `,
-  ]
+  name: 'Validate Workflows',
+  run: ['npm i', 'npm run build', 'npm run check-workflows']
     .map((_) => _.trim())
     .join('\n'),
-  shell: 'bash',
 })
 
 const setupRust = new Step({
@@ -41,7 +31,7 @@ const setupRust = new Step({
 })
 
 const runTests = new Step({
-  name: 'Run tests',
+  name: 'Run Tests',
   run: 'cargo test --workspace',
 })
 

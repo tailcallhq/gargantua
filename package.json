@@ -3,13 +3,22 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "generate-workflows": "gwf build"
+    "generate-workflows": "node ./wac/cli.js generate",
+    "check-workflows": "node ./wac/cli.js check",
+    "prettier": "prettier --write .",
+    "build": "tsc --build"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
     "github-actions-workflow-ts": "^0.3.1"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.2"
   }
 }

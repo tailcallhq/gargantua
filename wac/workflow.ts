@@ -15,44 +15,39 @@ const setupNode = () =>
     with: { 'node-version': '20' },
   })
 
-const checkWorkflow = () =>
-  new Step({
-    name: 'Validate Workflows',
-    run: ['npm i', 'npm run build', 'npm run check-workflows']
-      .map((_) => _.trim())
-      .join('\n'),
-  })
+const checkWorkflow = new Step({
+  name: 'Validate Workflows',
+  run: ['npm i', 'npm run build', 'npm run check-workflows']
+    .map((_) => _.trim())
+    .join('\n'),
+})
 
-const runTests = () =>
-  new Step({
-    name: 'Run Tests',
-    run: 'cargo test --workspace',
-  })
+const runTests = new Step({
+  name: 'Run Tests',
+  run: 'cargo test --workspace',
+})
 
 // Wasm build job
-const wasmBuildJob = () =>
-  new NormalJob('WASM', {
-    'runs-on': MACHINE,
-  }).addSteps([
-    new Step({
-      run: 'rustup target add wasm32-unknown-unknown',
-    }),
-    new Step({
-      run: 'cargo build --target wasm32-unknown-unknown --workspace',
-    }),
-  ])
+const wasmBuildJob = new NormalJob('WASM', {
+  'runs-on': MACHINE,
+}).addSteps([
+  new Step({
+    run: 'rustup target add wasm32-unknown-unknown',
+  }),
+  new Step({
+    run: 'cargo build --target wasm32-unknown-unknown --workspace',
+  }),
+])
 
 // Default job
-const defaultJob = () =>
-  new NormalJob('Test', {
-    'runs-on': MACHINE,
-  }).addSteps([checkoutStep(), runTests()])
+const defaultJob = new NormalJob('Test', {
+  'runs-on': MACHINE,
+}).addSteps([checkoutStep(), runTests])
 
 // Workflow validation job
-const workflowValidateJob = () =>
-  new NormalJob('Validate', {
-    'runs-on': MACHINE,
-  }).addSteps([checkoutStep(), setupNode(), checkWorkflow()])
+const workflowValidateJob = new NormalJob('Validate', {
+  'runs-on': MACHINE,
+}).addSteps([checkoutStep(), setupNode(), checkWorkflow])
 
 export const workflow = new Workflow('ci', {
   name: 'CI',
@@ -64,4 +59,4 @@ export const workflow = new Workflow('ci', {
       branches: ['main'],
     },
   },
-}).addJobs([defaultJob(), wasmBuildJob(), workflowValidateJob()])
+}).addJobs([defaultJob, wasmBuildJob, workflowValidateJob])

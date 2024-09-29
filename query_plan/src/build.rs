@@ -1,13 +1,6 @@
-use std::rc::Rc;
-use std::vec;
-
-use async_graphql::Positioned;
-use async_graphql_parser::types::{self as Q, OperationDefinition};
-use blueprint::{Graph, Index};
-use valid::Valid;
-
-use crate::error::Error;
 use crate::{Field, SelectionSet};
+use async_graphql::Positioned;
+use async_graphql_parser::types::{self as Q};
 
 pub struct Builder<A> {
     _phantom: std::marker::PhantomData<A>,
@@ -18,7 +11,6 @@ impl<A: Default> Builder<A> {
         Self { _phantom: std::marker::PhantomData }
     }
 
-    // Multiple(HashMap<Name, Positioned<OperationDefinition>>),
     pub fn build(&self, operation: &Q::OperationDefinition) -> SelectionSet<A> {
         SelectionSet::from(&operation.selection_set.node)
     }
@@ -50,12 +42,8 @@ impl<A: Default> From<&Q::SelectionSet> for SelectionSet<A> {
 
 #[cfg(test)]
 mod test {
-    use blueprint::Blueprint;
+    use crate::{Builder, SelectionSet};
     use insta::assert_debug_snapshot;
-    use resource::resource_str;
-    use serde_json::Value;
-
-    use crate::{Builder, QueryPlan, SelectionSet};
 
     #[test]
     fn test() {

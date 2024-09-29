@@ -31,7 +31,7 @@ const runTests = () =>
 
 // Wasm build job
 const wasmBuildJob = () =>
-  new NormalJob('wasm', {
+  new NormalJob('WASM', {
     'runs-on': MACHINE,
   }).addSteps([
     new Step({
@@ -50,12 +50,12 @@ const defaultJob = () =>
 
 // Workflow validation job
 const workflowValidateJob = () =>
-  new NormalJob('Setup', {
+  new NormalJob('Validate', {
     'runs-on': MACHINE,
   }).addSteps([checkoutStep(), setupNode(), checkWorkflow()])
 
 export const workflow = new Workflow('ci', {
-  name: 'Build & Test',
+  name: 'CI',
   on: {
     push: {
       branches: ['main'],

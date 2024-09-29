@@ -1,30 +1,21 @@
 ---
 source: query_plan/src/model.rs
-expression: selection_set
+expression: actual
 ---
-SelectionSet(
+Parallel(
     [
-        Field {
-            name: "topProducts",
-            selections: SelectionSet(
+        Fetch {
+            service: Graph(
+                "WIP",
+            ),
+            query: SelectionSet(
                 [
                     Field {
-                        name: "name",
-                        selections: SelectionSet(
-                            [],
-                        ),
-                        arguments: [],
-                        directives: [],
-                        is_hidden: false,
-                        graph: [],
-                        join_field: [],
-                    },
-                    Field {
-                        name: "reviews",
+                        name: "topProducts",
                         selections: SelectionSet(
                             [
                                 Field {
-                                    name: "score",
+                                    name: "name",
                                     selections: SelectionSet(
                                         [],
                                     ),
@@ -34,22 +25,45 @@ SelectionSet(
                                     graph: [],
                                     join_field: [],
                                 },
-                            ],
-                        ),
-                        arguments: [],
-                        directives: [],
-                        is_hidden: false,
-                        graph: [],
-                        join_field: [],
-                    },
-                    Field {
-                        name: "reviews",
-                        selections: SelectionSet(
-                            [
                                 Field {
-                                    name: "description",
+                                    name: "reviews",
                                     selections: SelectionSet(
-                                        [],
+                                        [
+                                            Field {
+                                                name: "score",
+                                                selections: SelectionSet(
+                                                    [],
+                                                ),
+                                                arguments: [],
+                                                directives: [],
+                                                is_hidden: false,
+                                                graph: [],
+                                                join_field: [],
+                                            },
+                                        ],
+                                    ),
+                                    arguments: [],
+                                    directives: [],
+                                    is_hidden: false,
+                                    graph: [],
+                                    join_field: [],
+                                },
+                                Field {
+                                    name: "reviews",
+                                    selections: SelectionSet(
+                                        [
+                                            Field {
+                                                name: "description",
+                                                selections: SelectionSet(
+                                                    [],
+                                                ),
+                                                arguments: [],
+                                                directives: [],
+                                                is_hidden: false,
+                                                graph: [],
+                                                join_field: [],
+                                            },
+                                        ],
                                     ),
                                     arguments: [],
                                     directives: [],
@@ -67,11 +81,10 @@ SelectionSet(
                     },
                 ],
             ),
-            arguments: [],
-            directives: [],
-            is_hidden: false,
-            graph: [],
-            join_field: [],
+            representations: None,
+            type_name: TypeName(
+                "Query",
+            ),
         },
     ],
 )

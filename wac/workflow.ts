@@ -53,7 +53,7 @@ testJob.addSteps([
   runTests,
 ])
 
-export const workflow = new Workflow('ci', {
+export const workflow = new Workflow('build', {
   name: 'Build & Test',
   on: {
     push: {

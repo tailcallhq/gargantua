@@ -2,61 +2,57 @@ import { Workflow, NormalJob, Step } from 'github-actions-workflow-ts'
 
 const MACHINE = 'ubuntu-latest'
 
-const checkoutStep = new Step({
-  name: 'Checkout',
-  uses: 'actions/checkout@v4',
-})
+const checkoutStep = () =>
+  new Step({
+    name: 'Checkout',
+    uses: 'actions/checkout@v4',
+  })
 
-const setupNode = new Step({
-  name: 'Setup Node',
-  uses: 'actions/setup-node@v4',
-  with: { 'node-version': '20' },
-})
+const setupNode = () =>
+  new Step({
+    name: 'Setup Node',
+    uses: 'actions/setup-node@v4',
+    with: { 'node-version': '20' },
+  })
 
-const checkWorkflow = new Step({
-  name: 'Validate Workflows',
-  run: ['npm i', 'npm run build', 'npm run check-workflows']
-    .map((_) => _.trim())
-    .join('\n'),
-})
+const checkWorkflow = () =>
+  new Step({
+    name: 'Validate Workflows',
+    run: ['npm i', 'npm run build', 'npm run check-workflows']
+      .map((_) => _.trim())
+      .join('\n'),
+  })
 
-const setupStableRust = new Step({
-  name: 'Setup Rust',
-  uses: 'actions-rs/toolchain@v1',
-  with: {
-    profile: 'minimal',
-    toolchain: 'stable',
-    override: true,
-  },
-})
-
-const runTests = new Step({
-  name: 'Run Tests',
-  run: 'cargo test --workspace',
-})
+const runTests = () =>
+  new Step({
+    name: 'Run Tests',
+    run: 'cargo test --workspace',
+  })
 
 // Wasm build job
-const wasmBuildJob = new NormalJob('wasm', {
-  'runs-on': MACHINE,
-}).addSteps([
-  setupStableRust,
-  new Step({
-    run: 'rustup target add wasm32-unknown-unknown',
-  }),
-  new Step({
-    run: 'cargo build --target wasm32-unknown-unknown --workspace',
-  }),
-])
+const wasmBuildJob = () =>
+  new NormalJob('wasm', {
+    'runs-on': MACHINE,
+  }).addSteps([
+    new Step({
+      run: 'rustup target add wasm32-unknown-unknown',
+    }),
+    new Step({
+      run: 'cargo build --target wasm32-unknown-unknown --workspace',
+    }),
+  ])
 
 // Default job
-const defaultJob = new NormalJob('Test', {
-  'runs-on': MACHINE,
-}).addSteps([checkoutStep, setupStableRust, runTests])
+const defaultJob = () =>
+  new NormalJob('Test', {
+    'runs-on': MACHINE,
+  }).addSteps([checkoutStep(), runTests()])
 
 // Workflow validation job
-const workflowValidateJob = new NormalJob('Setup', {
-  'runs-on': MACHINE,
-}).addSteps([checkoutStep, setupNode, checkWorkflow])
+const workflowValidateJob = () =>
+  new NormalJob('Setup', {
+    'runs-on': MACHINE,
+  }).addSteps([checkoutStep(), setupNode(), checkWorkflow()])
 
 export const workflow = new Workflow('ci', {
   name: 'Build & Test',
@@ -68,4 +64,4 @@ export const workflow = new Workflow('ci', {
       branches: ['main'],
     },
   },
-}).addJobs([defaultJob, wasmBuildJob, workflowValidateJob])
+}).addJobs([defaultJob(), wasmBuildJob(), workflowValidateJob()])

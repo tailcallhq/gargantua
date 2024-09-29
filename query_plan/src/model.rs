@@ -1,12 +1,9 @@
-use std::rc::Rc;
-
 use async_graphql::Positioned;
 use async_graphql_parser::types::{self as Q};
-use blueprint::{Graph, Index, JoinField};
+use blueprint::{Graph, JoinField};
 use derive_setters::Setters;
 
 use crate::error::Error;
-use crate::Builder;
 
 #[derive(Debug, Clone)]
 pub enum QueryPlan<Value> {
@@ -30,11 +27,19 @@ impl<A> QueryPlan<A> {
     }
 
     // Tries to create a new Query Plan from a GraphQL query and a Blueprint Index.
-    pub fn try_new(query: String, index: Index) -> Result<Self, Error> {
-        todo!()
-        // let doc = async_graphql_parser::parse_query(&query)?;
-        // let builder: Builder<A> = Builder::<A>::new(index);
-        // Ok(builder.build(&doc).to_result()?)
+    pub fn try_new(query: &str) -> Result<Self, Error> {
+        let doc = async_graphql_parser::parse_query(query)?;
+        let mut parallel = Vec::new();
+
+        // TODO: handle fragments
+        // TODO: use named operations
+        for (_, op) in doc.operations.iter() {
+            let selection = SelectionSet::from(&op.node.selection_set.node);
+            let type_name = TypeName::new("Query");
+            let service = Graph::new("WIP");
+            parallel.push(QueryPlan::fetch(service, type_name, selection));
+        }
+        Ok(QueryPlan::Parallel(parallel))
     }
 
     // Sequentially executes one plan after the other
@@ -62,15 +67,7 @@ impl TypeName {
 #[derive(Default, Debug, Clone)]
 pub struct SelectionSet<Value>(Vec<Field<Value>>);
 
-impl<Value: Default> SelectionSet<Value> {
-    pub fn new(doc: &Q::ExecutableDocument, index: Rc<Index>) -> Self {
-        let op = match &doc.operations {
-            async_graphql_parser::types::DocumentOperations::Single(op) => &op.node,
-            _ => todo!(),
-        };
-        Builder::new().build(op)
-    }
-
+impl<Value> SelectionSet<Value> {
     pub fn push(&mut self, field: Field<Value>) {
         self.0.push(field);
     }
@@ -95,7 +92,7 @@ pub struct Field<Value> {
     join_field: Vec<JoinField>,
 }
 
-impl<A: Default> Field<A> {
+impl<A> Field<A> {
     pub fn join_field(&self) -> &[JoinField] {
         &self.join_field
     }
@@ -134,9 +131,9 @@ pub enum Lens {
     Empty,
 }
 
-impl<A: Default> From<&Q::SelectionSet> for SelectionSet<A> {
+impl<A> From<&Q::SelectionSet> for SelectionSet<A> {
     fn from(node: &Q::SelectionSet) -> SelectionSet<A> {
-        let mut selection_set: SelectionSet<A> = SelectionSet::default();
+        let mut selection_set = Vec::new();
         for selection in node.items.iter() {
             let inner_selection = &selection.node;
             match inner_selection {
@@ -146,32 +143,28 @@ impl<A: Default> From<&Q::SelectionSet> for SelectionSet<A> {
                         Field::new(field_name, SelectionSet::from(&node.selection_set.node));
                     selection_set.push(field);
                 }
-                Q::Selection::InlineFragment(Positioned { node, .. }) => {
+                Q::Selection::InlineFragment(_) => {
                     todo!()
                 }
-                Q::Selection::FragmentSpread(Positioned { node, .. }) => {
+                Q::Selection::FragmentSpread(_) => {
                     todo!()
                 }
             }
         }
-        selection_set
+        SelectionSet(selection_set)
     }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::{Builder, SelectionSet};
     use insta::assert_debug_snapshot;
+
+    use crate::QueryPlan;
 
     #[test]
     fn test() {
         let query = "query { topProducts { name reviews { score } reviews { description } } }";
-        let p_query = async_graphql_parser::parse_query(query).unwrap();
-        let op = match p_query.operations {
-            async_graphql_parser::types::DocumentOperations::Single(op) => op.node,
-            _ => todo!(),
-        };
-        let selection_set: SelectionSet<String> = Builder::new().build(&op);
-        assert_debug_snapshot!(selection_set);
+        let actual: QueryPlan<()> = QueryPlan::try_new(query).unwrap();
+        assert_debug_snapshot!(actual);
     }
 }

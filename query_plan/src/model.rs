@@ -59,14 +59,20 @@ impl TypeName {
     }
 }
 
-#[derive(Default, Debug, Clone, Setters)]
-pub struct SelectionSet<Value> {
-    pub fields: Vec<Field<Value>>,
-}
+#[derive(Default, Debug, Clone)]
+pub struct SelectionSet<Value>(Vec<Field<Value>>);
 
-impl<Value> SelectionSet<Value> {
-    pub fn try_new(doc: &ExecutableDocument, index: Rc<Index>) -> Result<Self, Error> {
-        Builder::new(index).build(doc)
+impl<Value: Default> SelectionSet<Value> {
+    pub fn new(doc: &ExecutableDocument, index: Rc<Index>) -> Self {
+        let op = match &doc.operations {
+            async_graphql_parser::types::DocumentOperations::Single(op) => &op.node,
+            _ => todo!(),
+        };
+        Builder::new().build(op)
+    }
+
+    pub fn push(&mut self, field: Field<Value>) {
+        self.0.push(field);
     }
 }
 
@@ -89,9 +95,21 @@ pub struct Field<Value> {
     join_field: Vec<JoinField>,
 }
 
-impl<A> Field<A> {
+impl<A: Default> Field<A> {
     pub fn join_field(&self) -> &[JoinField] {
         &self.join_field
+    }
+
+    pub fn new(name: String, selections: SelectionSet<A>) -> Self {
+        Field {
+            name: name.to_string(),
+            selections,
+            arguments: Vec::new(),
+            directives: Vec::new(),
+            is_hidden: false,
+            graph: Vec::new(),
+            join_field: Vec::new(),
+        }
     }
 }
 

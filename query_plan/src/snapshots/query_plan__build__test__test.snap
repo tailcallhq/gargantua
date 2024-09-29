@@ -1,16 +1,77 @@
 ---
 source: query_plan/src/build.rs
-expression: plan
+expression: selection_set
 ---
-Fetch {
-    service: Graph(
-        "Product",
-    ),
-    query: SelectionSet {
-        fields: [],
-    },
-    representations: None,
-    type_name: TypeName(
-        "Query",
-    ),
-}
+SelectionSet(
+    [
+        Field {
+            name: "topProducts",
+            selections: SelectionSet(
+                [
+                    Field {
+                        name: "name",
+                        selections: SelectionSet(
+                            [],
+                        ),
+                        arguments: [],
+                        directives: [],
+                        is_hidden: false,
+                        graph: [],
+                        join_field: [],
+                    },
+                    Field {
+                        name: "reviews",
+                        selections: SelectionSet(
+                            [
+                                Field {
+                                    name: "score",
+                                    selections: SelectionSet(
+                                        [],
+                                    ),
+                                    arguments: [],
+                                    directives: [],
+                                    is_hidden: false,
+                                    graph: [],
+                                    join_field: [],
+                                },
+                            ],
+                        ),
+                        arguments: [],
+                        directives: [],
+                        is_hidden: false,
+                        graph: [],
+                        join_field: [],
+                    },
+                    Field {
+                        name: "reviews",
+                        selections: SelectionSet(
+                            [
+                                Field {
+                                    name: "description",
+                                    selections: SelectionSet(
+                                        [],
+                                    ),
+                                    arguments: [],
+                                    directives: [],
+                                    is_hidden: false,
+                                    graph: [],
+                                    join_field: [],
+                                },
+                            ],
+                        ),
+                        arguments: [],
+                        directives: [],
+                        is_hidden: false,
+                        graph: [],
+                        join_field: [],
+                    },
+                ],
+            ),
+            arguments: [],
+            directives: [],
+            is_hidden: false,
+            graph: [],
+            join_field: [],
+        },
+    ],
+)

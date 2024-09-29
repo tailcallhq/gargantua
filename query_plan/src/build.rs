@@ -1,9 +1,11 @@
-use std::{rc::Rc, vec};
+use std::rc::Rc;
+use std::vec;
 
 use async_graphql_parser::types as Q;
 use blueprint::{Graph, Index};
 use valid::Valid;
 
+use crate::error::Error;
 use crate::SelectionSet;
 
 pub struct Builder<A> {
@@ -16,7 +18,7 @@ impl<A> Builder<A> {
         Self { index, _phantom: std::marker::PhantomData }
     }
 
-    pub fn build(&self, doc: &Q::ExecutableDocument) -> Valid<SelectionSet<A>, String> {
+    pub fn build(&self, doc: &Q::ExecutableDocument) -> Result<SelectionSet<A>, Error> {
         todo!()
     }
 }

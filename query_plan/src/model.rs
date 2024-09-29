@@ -66,7 +66,7 @@ pub struct SelectionSet<Value> {
 
 impl<Value> SelectionSet<Value> {
     pub fn try_new(doc: &ExecutableDocument, index: Rc<Index>) -> Result<Self, Error> {
-        Builder::new(index)
+        Builder::new(index).build(doc)
     }
 }
 

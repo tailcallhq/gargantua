@@ -1,8 +1,7 @@
 use indexmap::IndexMap;
 
 use crate::{
-    Blueprint, Definition, FieldDefinition, InputFieldDefinition, InputObjectTypeDefinition,
-    SchemaDefinition,
+    Blueprint, Definition, FieldDefinition, InputFieldDefinition, InputObjectTypeDefinition, ObjectTypeDefinition, SchemaDefinition
 };
 
 ///
@@ -89,6 +88,15 @@ impl Index {
             _ => None,
         }
     }
+
+    pub fn get_object_type_definition(&self, type_name: &str) -> Option<&ObjectTypeDefinition> {
+        match self.map.get(type_name) {
+            Some((Definition::Object(input), _)) => Some(input),
+            _ => None,
+        }
+        
+    }
+    
 }
 
 impl From<&Blueprint> for Index {

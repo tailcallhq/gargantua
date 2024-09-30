@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use async_graphql::Positioned;
 use async_graphql_parser::types::{self as Q};
 use blueprint::{Graph, JoinField};
@@ -67,6 +69,14 @@ impl TypeName {
 #[derive(Default, Debug, Clone)]
 pub struct SelectionSet<Value>(Vec<Field<Value>>);
 
+impl<A> Deref for SelectionSet<A> {
+    type Target = Vec<Field<A>>;
+
+    fn deref(&self) -> &Self::Target {
+        self.0.as_ref()
+    }
+}
+
 impl<Value> SelectionSet<Value> {
     pub fn push(&mut self, field: Field<Value>) {
         self.0.push(field);
@@ -92,15 +102,11 @@ pub struct Field<Value> {
     pub graph: Vec<Graph>,
 
     /// Internal readonly information from the Blueprint Index.
-    #[setters(skip)]
+    // #[setters(skip)]
     join_field: Vec<JoinField>,
 }
 
 impl<A> Field<A> {
-    pub fn join_field(&self) -> &[JoinField] {
-        &self.join_field
-    }
-
     pub fn new(name: String, selections: SelectionSet<A>) -> Self {
         Field {
             name: name.to_string(),

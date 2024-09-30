@@ -225,3 +225,12 @@ pub enum Type {
         non_null: bool,
     },
 }
+
+impl Type {
+    pub fn as_type_str(&self) -> String {
+        match self {
+            Type::Named { name, .. } => name.to_string(),
+            Type::List { of_type, .. } => of_type.as_type_str(),
+        }
+    }
+}

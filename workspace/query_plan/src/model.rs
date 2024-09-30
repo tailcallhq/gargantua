@@ -82,6 +82,10 @@ impl<A> Deref for SelectionSet<A> {
 }
 
 impl<Value> SelectionSet<Value> {
+    pub fn new(fields: Vec<Field<Value>>) -> Self {
+        Self(fields)
+    }
+
     pub fn push(&mut self, field: Field<Value>) {
         self.0.push(field);
     }
@@ -111,6 +115,8 @@ pub struct Field<Value> {
 }
 
 impl<A> Field<A> {
+    // pub join_field(&mut)
+
     pub fn new(name: String, selections: SelectionSet<A>) -> Self {
         Field {
             name: name.to_string(),

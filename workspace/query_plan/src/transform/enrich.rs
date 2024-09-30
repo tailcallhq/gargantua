@@ -27,10 +27,9 @@ impl Enrich {
             }
         };
 
-        let mut enriched_selection_set: SelectionSet<Value> = SelectionSet::default();
+        let mut enriched_field_list = vec![];
 
         for field in selection.into_vec().into_iter() {
-            let mut enriched_field = field.clone();
             let field_def = match self.0.get_field(container_type, &field.name) {
                 Some(QueryField::Field((def, _))) => def,
                 _ => {
@@ -41,43 +40,43 @@ impl Enrich {
                 }
             };
 
-            let enriched_field = if field_def.join_fields.is_empty() {
+            let field = if field_def.join_fields.is_empty() {
                 // if field doesn't have @join__field directive, then
                 // we need to figure out from where this field can be queried
 
                 // 1. this field can be queried form the @join__type -> wherein the key is same as this field.
                 // 2. this field can be queried from the @join__type directive's graph where key is none.
-                enriched_field
-                    .graph
-                    .extend(type_def.join_types.iter().filter_map(|jt| {
+                let graphs = type_def
+                    .join_types
+                    .iter()
+                    .filter_map(|jt| {
                         if jt.key.is_none() || jt.key.as_ref().map_or(false, |k| k == &field.name) {
                             Some(jt.graph.clone())
                         } else {
                             None
                         }
-                    }));
+                    })
+                    .collect::<Vec<_>>();
 
-                enriched_field
+                field.graph(graphs)
             } else {
-                enriched_field.join_field(field_def.join_fields.clone())
+                field.join_field(field_def.join_fields.clone())
             };
 
             let type_name = field_def.of_type.as_type_str();
             if !field.selections.is_empty() {
-                self.enrich_information(field.selections, &type_name)
+                self.enrich_information(field.selections.clone(), &type_name)
                     .and_then(|enriched_nested_selected_set| {
-                        let enriched_field =
-                            enriched_field.selections(enriched_nested_selected_set);
-                        enriched_selection_set.push(enriched_field);
-
+                        let field = field.selections(enriched_nested_selected_set);
+                        enriched_field_list.push(field);
                         Valid::succeed(())
                     });
             } else {
-                enriched_selection_set.push(enriched_field);
+                enriched_field_list.push(field);
             }
         }
 
-        Valid::succeed(enriched_selection_set)
+        Valid::succeed(SelectionSet::new(enriched_field_list))
     }
 }
 
@@ -106,7 +105,9 @@ mod test {
     #[test]
     fn test_enricher_supergraph_1() {
         let query = "query { topProducts { productName: name reviews { body } reviews { id } } }";
-        let index = setup(include_str!("../../../blueprint/src/fixtures/router.graphql"));
+        let index = setup(include_str!(
+            "../../../blueprint/src/fixtures/router.graphql"
+        ));
         let doc = async_graphql_parser::parse_query(query).unwrap();
 
         // pick the very first operation.

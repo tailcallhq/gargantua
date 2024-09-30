@@ -1,4 +1,4 @@
-use std::ops::{Deref, DerefMut};
+use std::ops::Deref;
 
 use async_graphql::Positioned;
 use async_graphql_parser::types::{self as Q};
@@ -54,6 +54,7 @@ impl QueryPlan<async_graphql_value::Value> {
             let service = Graph::new("WIP");
             parallel.push(QueryPlan::fetch(service, type_name, selection));
         }
+
         Ok(QueryPlan::Parallel(parallel))
     }
 

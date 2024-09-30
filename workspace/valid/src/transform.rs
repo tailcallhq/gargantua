@@ -19,6 +19,14 @@ pub trait Transform {
     {
         Identity(std::marker::PhantomData)
     }
+
+    fn map_err<F, E>(self, f: F) -> MapError<Self, F>
+    where
+        Self: Sized,
+        F: Fn(Self::Error) -> E,
+    {
+        MapError(self, f)
+    }
 }
 
 pub struct Pipe<A, B>(A, B);
@@ -45,5 +53,19 @@ impl<V, E> Transform for Identity<V, E> {
 
     fn transform(&self, input: Self::Value) -> Valid<Self::Value, Self::Error> {
         Valid::succeed(input)
+    }
+}
+
+pub struct MapError<A, F>(A, F);
+
+impl<A: Transform, F, E> Transform for MapError<A, F>
+where
+    F: Fn(A::Error) -> E,
+{
+    type Value = A::Value;
+    type Error = E;
+
+    fn transform(&self, input: Self::Value) -> Valid<Self::Value, Self::Error> {
+        self.0.transform(input).map_err(&self.1)
     }
 }

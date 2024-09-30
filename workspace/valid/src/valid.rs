@@ -66,6 +66,10 @@ pub trait Validator<A, E>: Sized {
         }
     }
 
+    fn map_err<EOut>(self, f: &impl Fn(E) -> EOut) -> Valid<A, EOut> {
+        Valid(self.to_result().map_err(|e| e.transform(&f)))
+    }
+
     fn to_result(self) -> Result<A, Error<E>>;
 
     fn and_then<B>(self, f: impl FnOnce(A) -> Valid<B, E>) -> Valid<B, E> {

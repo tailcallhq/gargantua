@@ -23,8 +23,12 @@ pub enum QueryPlan<Value> {
     },
 }
 
-impl<A> QueryPlan<A> {
-    pub fn fetch(service: Graph, type_name: TypeName, query: SelectionSet<A>) -> Self {
+impl QueryPlan<async_graphql_value::Value> {
+    pub fn fetch(
+        service: Graph,
+        type_name: TypeName,
+        query: SelectionSet<async_graphql_value::Value>,
+    ) -> Self {
         QueryPlan::Fetch { service, query, representations: None, type_name }
     }
 
@@ -45,7 +49,7 @@ impl<A> QueryPlan<A> {
     }
 
     // Sequentially executes one plan after the other
-    pub fn and_then(self, select: Lens, plan: QueryPlan<A>) -> Self {
+    pub fn and_then(self, select: Lens, plan: QueryPlan<async_graphql_value::Value>) -> Self {
         QueryPlan::Sequence(vec![
             self,
             QueryPlan::Flatten { select, plan: Box::new(plan) },
@@ -156,12 +160,9 @@ impl Lens {
     }
 }
 
-
-// FIXME: @karatakis Need to implement it for async_graphql
-// Drop the type-parameter A
 // Correctly implement and add tests
-impl<A> From<&Q::SelectionSet> for SelectionSet<A> {
-    fn from(node: &Q::SelectionSet) -> SelectionSet<A> {
+impl From<&Q::SelectionSet> for SelectionSet<async_graphql_value::Value> {
+    fn from(node: &Q::SelectionSet) -> SelectionSet<async_graphql_value::Value> {
         let mut selection_set = Vec::new();
         for selection in node.items.iter() {
             let inner_selection = &selection.node;
@@ -193,7 +194,33 @@ mod test {
     #[test]
     fn test() {
         let query = "query { topProducts { name reviews { score } reviews { description } } }";
-        let actual: QueryPlan<()> = QueryPlan::try_new(query).unwrap();
+        let actual: QueryPlan<_> = QueryPlan::try_new(query).unwrap();
+        assert_debug_snapshot!(actual);
+    }
+
+    #[test]
+    fn test_complex() {
+        let query = r#"
+            query getData(
+                    $userId: String!,
+                    $sortOrder: String = DESC @onVariableDefinition,
+                    $region: String = "EU"
+                ) @onQuery {
+                me: user(id: $userId) @onField {
+                    id
+                    username
+                    role {
+                        id
+                        name
+                    }
+                }
+                stores(first: 10, order: $sortOrder, region: $region) {
+                    id @onField(data: 1)
+                    name @onField(data: { foo: "bar" })
+                }
+            }
+        "#;
+        let actual: QueryPlan<_> = QueryPlan::try_new(query).unwrap();
         assert_debug_snapshot!(actual);
     }
 }

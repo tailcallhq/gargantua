@@ -1,7 +1,8 @@
 use indexmap::IndexMap;
 
 use crate::{
-    Blueprint, Definition, FieldDefinition, InputFieldDefinition, InputObjectTypeDefinition, ObjectTypeDefinition, SchemaDefinition
+    Blueprint, Definition, FieldDefinition, InputFieldDefinition, InputObjectTypeDefinition,
+    ObjectTypeDefinition, SchemaDefinition,
 };
 
 ///
@@ -94,9 +95,7 @@ impl Index {
             Some((Definition::Object(input), _)) => Some(input),
             _ => None,
         }
-        
     }
-    
 }
 
 impl From<&Blueprint> for Index {

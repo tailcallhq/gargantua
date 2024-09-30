@@ -13,7 +13,7 @@ pub enum QueryPlan<Value> {
     Sequence(Vec<QueryPlan<Value>>),
     Fetch {
         service: Graph,
-        query: SelectionSet<Value>,
+        query: QueryOperation<Value>,
         representations: Option<SelectionSet<Value>>,
         type_name: TypeName,
     },
@@ -23,13 +23,24 @@ pub enum QueryPlan<Value> {
     },
 }
 
+#[derive(Debug, Clone)]
+pub struct QueryOperation<Value> {
+    // TODO: add directives, variables etc.
+    pub selection_set: SelectionSet<Value>,
+}
+
 impl QueryPlan<async_graphql_value::Value> {
     pub fn fetch(
         service: Graph,
         type_name: TypeName,
         query: SelectionSet<async_graphql_value::Value>,
     ) -> Self {
-        QueryPlan::Fetch { service, query, representations: None, type_name }
+        QueryPlan::Fetch {
+            service,
+            query: QueryOperation { selection_set: query },
+            representations: None,
+            type_name,
+        }
     }
 
     // Tries to create a new Query Plan from a GraphQL query and a Blueprint Index.

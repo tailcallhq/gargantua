@@ -24,7 +24,9 @@ pub trait HttpIoTrait {
     async fn execute(&self, req: reqwest::Request) -> anyhow::Result<reqwest::Response>;
 }
 
-pub async fn resolve<Ctx: ResolverContextTrait + Clone>(ctx: Ctx) -> anyhow::Result<serde_json::Value> {
+pub async fn resolve<Ctx: ResolverContextTrait + Clone>(
+    ctx: Ctx,
+) -> anyhow::Result<serde_json::Value> {
     let plan = ctx.plan().clone();
     let blueprint = ctx.blueprint();
 
@@ -38,11 +40,16 @@ pub async fn resolve<Ctx: ResolverContextTrait + Clone>(ctx: Ctx) -> anyhow::Res
                 futures.push(future);
             }
 
-            let results = future::join_all(futures).await.into_iter().collect::<anyhow::Result<Vec<_>>>()?;
+            let results = future::join_all(futures)
+                .await
+                .into_iter()
+                .collect::<anyhow::Result<Vec<_>>>()?;
 
-            results.into_iter().fold(ctx.value_owned(), |value, other_value| {
-                merge(value, other_value)
-            })
+            results
+                .into_iter()
+                .fold(ctx.value_owned(), |value, other_value| {
+                    merge(value, other_value)
+                })
         }
         QueryPlan::Sequence(vec) => {
             let mut value = ctx.value().clone();
@@ -56,7 +63,13 @@ pub async fn resolve<Ctx: ResolverContextTrait + Clone>(ctx: Ctx) -> anyhow::Res
             value
         }
         QueryPlan::Fetch { service, query, representations, type_name } => {
-            let req = prepare_req(blueprint, &service, &query, &representations, type_name);
+            let req = prepare_req(
+                blueprint,
+                &service,
+                &query.selection_set,
+                &representations,
+                type_name,
+            );
 
             let res: serde_json::Value = ctx.http().execute(req).await?.json().await?;
 
@@ -77,7 +90,6 @@ pub async fn resolve<Ctx: ResolverContextTrait + Clone>(ctx: Ctx) -> anyhow::Res
 
     Ok(json_value)
 }
-
 
 fn merge(value: serde_json::Value, other_value: serde_json::Value) -> serde_json::Value {
     match (value, other_value) {
@@ -101,7 +113,13 @@ fn merge(value: serde_json::Value, other_value: serde_json::Value) -> serde_json
     }
 }
 
-fn prepare_req<Value>(_blueprint: &Blueprint, _service: &Graph, _query: &SelectionSet<Value>, _representations: &Option<SelectionSet<Value>>, _type_name: TypeName) -> reqwest::Request {
+fn prepare_req<Value>(
+    _blueprint: &Blueprint,
+    _service: &Graph,
+    _query: &SelectionSet<Value>,
+    _representations: &Option<SelectionSet<Value>>,
+    _type_name: TypeName,
+) -> reqwest::Request {
     // TODO: prepare query string
     // TODO: prepare request
     todo!()

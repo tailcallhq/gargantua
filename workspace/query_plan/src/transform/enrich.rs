@@ -44,8 +44,10 @@ impl Enrich {
                 // if field doesn't have @join__field directive, then
                 // we need to figure out from where this field can be queried
 
-                // 1. this field can be queried form the @join__type -> wherein the key is same as this field.
-                // 2. this field can be queried from the @join__type directive's graph where key is none.
+                // 1. this field can be queried form the @join__type -> wherein the key is same
+                //    as this field.
+                // 2. this field can be queried from the @join__type directive's graph where key
+                //    is none.
                 let graphs = type_def
                     .join_types
                     .iter()
@@ -98,8 +100,8 @@ mod test {
 
     fn setup(graphql: &str) -> Index {
         let document = async_graphql_parser::parse_schema(graphql).unwrap();
-        let index = Blueprint::parse_doc(document).to_index();
-        index
+        
+        Blueprint::parse_doc(document).to_index()
     }
 
     #[test]

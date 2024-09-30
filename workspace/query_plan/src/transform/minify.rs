@@ -27,7 +27,7 @@ impl<A> Transform for Minify<A> {
                         ))),
                     }
                 } else {
-                    Valid::from_iter(items.into_iter(), |item| self.transform(item))
+                    Valid::from_iter(items, |item| self.transform(item))
                         .map(|items| QueryPlan::Parallel(items))
                 }
             }
@@ -40,7 +40,7 @@ impl<A> Transform for Minify<A> {
                         ))),
                     }
                 } else {
-                    Valid::from_iter(vec.into_iter(), |item| self.transform(item))
+                    Valid::from_iter(vec, |item| self.transform(item))
                         .map(|vec| QueryPlan::Sequence(vec))
                 }
             }

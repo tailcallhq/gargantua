@@ -25,15 +25,31 @@ pub enum QueryPlan<Value> {
 
 #[derive(Debug, Clone)]
 pub struct QueryOperation<Value> {
-    // TODO: add directives, variables etc.
+    pub name: Option<String>,
+    pub ty: TypeName,
+    pub arguments: Vec<Argument<Value>>,
+    pub directives: Vec<Directive<Value>>,
     pub selection_set: SelectionSet<Value>,
 }
 
-impl<A> QueryPlan<A> {
-    pub fn fetch(service: Graph, type_name: TypeName, query: SelectionSet<A>) -> Self {
+impl QueryPlan<async_graphql_value::Value> {
+    pub fn fetch(
+        name: Option<String>,
+        service: Graph,
+        type_name: TypeName,
+        query: SelectionSet<async_graphql_value::Value>,
+        directives: Vec<Directive<async_graphql_value::Value>>,
+        arguments: Vec<Argument<async_graphql_value::Value>>,
+    ) -> Self {
         QueryPlan::Fetch {
             service,
-            query: QueryOperation { selection_set: query },
+            query: QueryOperation {
+                selection_set: query,
+                ty: type_name.clone(),
+                directives,
+                name,
+                arguments,
+            },
             representations: None,
             type_name,
         }
@@ -48,11 +64,42 @@ impl QueryPlan<async_graphql_value::Value> {
 
         // TODO: handle fragments
         // TODO: use named operations
-        for (_, op) in doc.operations.iter() {
-            let selection = SelectionSet::from(&op.node.selection_set.node);
-            let type_name = TypeName::new("Query");
-            let service = Graph::new("WIP");
-            parallel.push(QueryPlan::fetch(service, type_name, selection));
+        for (name, Positioned { node: op, .. }) in doc.operations.iter() {
+            let name = name.map(|n| n.to_string());
+            let selection = SelectionSet::from(&op.selection_set.node);
+            let type_name = TypeName::new(&op.ty.to_string());
+            let directives = op
+                .directives
+                .clone()
+                .into_iter()
+                .map(|Positioned { node: dir_node, .. }| {
+                    let arguments = dir_node
+                        .arguments
+                        .into_iter()
+                        .map(
+                            |(
+                                Positioned { node: name_node, .. },
+                                Positioned { node: arg_node, .. },
+                            )| {
+                                Argument { name: name_node.to_string(), value: arg_node }
+                            },
+                        )
+                        .collect();
+
+                    Directive {
+                        name: dir_node.name.into_inner().to_string(),
+                        arguments: arguments,
+                    }
+                })
+                .collect();
+
+            // TODO: parse arguments
+            let arguments = Vec::new();
+
+            let service = Graph::new("");
+            parallel.push(QueryPlan::fetch(
+                name, service, type_name, selection, directives, arguments,
+            ));
         }
 
         Ok(QueryPlan::Parallel(parallel))
@@ -108,6 +155,7 @@ impl<Value> SelectionSet<Value> {
 #[derive(Debug, Clone, Setters)]
 pub struct Field<Value> {
     pub name: String,
+    pub alias: Option<String>,
     pub selections: SelectionSet<Value>,
     pub arguments: Vec<Argument<Value>>,
     pub directives: Vec<Directive<Value>>,
@@ -127,6 +175,7 @@ impl<A> Field<A> {
     pub fn new(name: String, selections: SelectionSet<A>) -> Self {
         Field {
             name: name.to_string(),
+            alias: None,
             selections,
             arguments: Vec::new(),
             directives: Vec::new(),
@@ -182,8 +231,53 @@ impl From<&Q::SelectionSet> for SelectionSet<async_graphql_value::Value> {
             match inner_selection {
                 Q::Selection::Field(Positioned { node, .. }) => {
                     let field_name = node.name.node.as_str().to_string();
+
+                    let alias = node
+                        .alias
+                        .as_ref()
+                        .map(|alias| alias.clone().into_inner().to_string());
+
+                    let arguments = node
+                        .arguments
+                        .clone()
+                        .into_iter()
+                        .map(
+                            |(
+                                Positioned { node: name_node, .. },
+                                Positioned { node: arg_node, .. },
+                            )| {
+                                Argument { name: name_node.to_string(), value: arg_node }
+                            },
+                        )
+                        .collect::<Vec<_>>();
+
+                    let directives = node
+                        .directives
+                        .clone()
+                        .into_iter()
+                        .map(|Positioned { node: directive_node, .. }| {
+                            let arguments = directive_node
+                                .arguments
+                                .into_iter()
+                                .map(
+                                    |(
+                                        Positioned { node: name_node, .. },
+                                        Positioned { node: arg_node, .. },
+                                    )| {
+                                        Argument { name: name_node.to_string(), value: arg_node }
+                                    },
+                                )
+                                .collect();
+                            Directive { name: directive_node.name.to_string(), arguments }
+                        })
+                        .collect::<Vec<_>>();
+
                     let field =
-                        Field::new(field_name, SelectionSet::from(&node.selection_set.node));
+                        Field::new(field_name, SelectionSet::from(&node.selection_set.node))
+                            .alias(alias)
+                            .arguments(arguments)
+                            .directives(directives);
+
                     selection_set.push(field);
                 }
                 Q::Selection::InlineFragment(_) => {
@@ -221,15 +315,31 @@ mod test {
             ) @onQuery {
                 me: user(id: $userId) @onField {
                     id
-                    username
+                    nickname: username
                     role {
-                    id
-                    name
+                        id
+                        name
                     }
                 }
                 stores(first: 10, order: $sortOrder, region: $region) {
                     id @onField(data: 1)
                     name @onField(data: { foo: "bar" })
+                }
+            }
+
+            mutation logVisit @onMutation {
+                logVisit(tag: 123) @onField {
+                    visit {
+                        id @onField
+                        date
+                    }
+                }
+            }
+
+            subscription newMessages($roomId: String = "welcome") @onSubscription {
+                newMessage(room: $roomId) {
+                    id
+                    text
                 }
             }
         "#;

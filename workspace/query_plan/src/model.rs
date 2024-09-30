@@ -120,13 +120,10 @@ pub struct Field<Value> {
     pub graph: Vec<Graph>,
 
     /// Internal readonly information from the Blueprint Index.
-    // #[setters(skip)]
-    join_field: Vec<JoinField>,
+    pub join_field: Vec<JoinField>,
 }
 
 impl<A> Field<A> {
-    // pub join_field(&mut)
-
     pub fn new(name: String, selections: SelectionSet<A>) -> Self {
         Field {
             name: name.to_string(),

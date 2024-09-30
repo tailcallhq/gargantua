@@ -2,7 +2,6 @@ use std::marker::PhantomData;
 
 use valid::{Transform, Valid, Validator};
 
-use crate::error::Error;
 use crate::QueryPlan;
 pub struct Minify<A>(PhantomData<A>);
 
@@ -14,7 +13,7 @@ impl<A> Minify<A> {
 
 impl<A> Transform for Minify<A> {
     type Value = QueryPlan<A>;
-    type Error = Error;
+    type Error = &'static str;
 
     fn transform(&self, input: Self::Value) -> Valid<Self::Value, Self::Error> {
         match input {
@@ -22,9 +21,7 @@ impl<A> Transform for Minify<A> {
                 if items.len() == 1 {
                     match items.into_iter().next() {
                         Some(item) => self.transform(item),
-                        None => Valid::fail(Error::Plan(valid::Error::new(
-                            "Empty Parallel".to_string(),
-                        ))),
+                        None => Valid::fail("Empty Parallel"),
                     }
                 } else {
                     Valid::from_iter(items, |item| self.transform(item))
@@ -35,9 +32,7 @@ impl<A> Transform for Minify<A> {
                 if vec.len() == 1 {
                     match vec.into_iter().next() {
                         Some(item) => self.transform(item),
-                        None => Valid::fail(Error::Plan(valid::Error::new(
-                            "Empty Sequence".to_string(),
-                        ))),
+                        None => Valid::fail("Empty Sequence"),
                     }
                 } else {
                     Valid::from_iter(vec, |item| self.transform(item))

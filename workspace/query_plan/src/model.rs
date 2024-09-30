@@ -1,4 +1,4 @@
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 
 use async_graphql::Positioned;
 use async_graphql_parser::types::{self as Q};
@@ -29,12 +29,8 @@ pub struct QueryOperation<Value> {
     pub selection_set: SelectionSet<Value>,
 }
 
-impl QueryPlan<async_graphql_value::Value> {
-    pub fn fetch(
-        service: Graph,
-        type_name: TypeName,
-        query: SelectionSet<async_graphql_value::Value>,
-    ) -> Self {
+impl<A> QueryPlan<A> {
+    pub fn fetch(service: Graph, type_name: TypeName, query: SelectionSet<A>) -> Self {
         QueryPlan::Fetch {
             service,
             query: QueryOperation { selection_set: query },
@@ -42,7 +38,9 @@ impl QueryPlan<async_graphql_value::Value> {
             type_name,
         }
     }
+}
 
+impl QueryPlan<async_graphql_value::Value> {
     // Tries to create a new Query Plan from a GraphQL query and a Blueprint Index.
     pub fn try_new(query: &str) -> Result<Self, Error> {
         let doc = async_graphql_parser::parse_query(query)?;

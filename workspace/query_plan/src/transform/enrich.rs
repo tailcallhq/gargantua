@@ -1,42 +1,45 @@
-use async_graphql_value::Value;
+use std::marker::PhantomData;
+
 use blueprint::{Index, QueryField};
 use valid::{Transform, Valid, Validator};
 
-use crate::SelectionSet;
+use crate::{QueryOperation, QueryPlan, SelectionSet};
 
-struct Enrich(Index);
+pub struct Enrich<Value> {
+    index: Index,
+    root_type: String,
+    _marker: PhantomData<Value>,
+}
 
-impl Enrich {
-    pub fn new(index: Index) -> Self {
-        Self(index)
+impl<Value: Clone> Enrich<Value> {
+    pub fn new(index: Index, root_type: String) -> Self {
+        Self { index, root_type, _marker: PhantomData }
     }
 
-    fn enrich_information(
+    fn iter_sel(
         &self,
         selection: SelectionSet<Value>,
         container_type: &str,
     ) -> Valid<SelectionSet<Value>, String> {
         // this field belongs to container_type, so we if want to get this field
-        let type_def = match self.0.get_object_type_definition(container_type) {
+        let type_def = match self.index.get_object_type_definition(container_type) {
             Some(type_def) => type_def,
             None => {
                 return Valid::fail(format!(
                     "type definition not found for type '{}' ",
                     container_type
-                ))
+                ));
             }
         };
 
-        let mut enriched_field_list = vec![];
-
-        for field in selection.into_vec().into_iter() {
-            let field_def = match self.0.get_field(container_type, &field.name) {
+        Valid::from_iter(selection.into_vec().into_iter(), |field| {
+            let field_def = match self.index.get_field(container_type, &field.name) {
                 Some(QueryField::Field((def, _))) => def,
                 _ => {
                     return Valid::fail(format!(
                         "field definition not found for field '{}' in type '{}' ",
                         field.name, container_type
-                    ))
+                    ));
                 }
             };
 
@@ -66,29 +69,50 @@ impl Enrich {
             };
 
             let type_name = field_def.of_type.as_type_str();
-            if !field.selections.is_empty() {
-                self.enrich_information(field.selections.clone(), &type_name)
-                    .and_then(|enriched_nested_selected_set| {
-                        let field = field.selections(enriched_nested_selected_set);
-                        enriched_field_list.push(field);
-                        Valid::succeed(())
-                    });
-            } else {
-                enriched_field_list.push(field);
+            let selection = field.selections.clone();
+            self.iter_sel(selection, &type_name)
+                .map(|selection_set| field.selections(selection_set))
+        })
+        .map(|fields| SelectionSet::new(fields))
+    }
+
+    fn iter(
+        &self,
+        query: QueryPlan<Value>,
+        container_type: &str,
+    ) -> Valid<QueryPlan<Value>, String> {
+        match query {
+            QueryPlan::Fetch { service, query, representations, type_name } => self
+                .iter_sel(query.selection_set, container_type)
+                .map(|selection_set| QueryPlan::Fetch {
+                    service,
+                    query: QueryOperation { selection_set },
+                    representations,
+                    type_name,
+                }),
+            QueryPlan::Flatten { select, plan } => self
+                .iter(*plan, container_type)
+                .map(|plan| QueryPlan::Flatten { select, plan: Box::new(plan) }),
+
+            QueryPlan::Parallel(plans) => {
+                Valid::from_iter(plans, |plan| self.iter(plan, container_type))
+                    .map(|plans| QueryPlan::Parallel(plans))
+            }
+
+            QueryPlan::Sequence(plans) => {
+                Valid::from_iter(plans, |plan| self.iter(plan, container_type))
+                    .map(|plans| QueryPlan::Sequence(plans))
             }
         }
-
-        Valid::succeed(SelectionSet::new(enriched_field_list))
     }
 }
 
-impl Transform for Enrich {
-    type Value = SelectionSet<Value>;
+impl<Value: Clone> Transform for Enrich<Value> {
+    type Value = QueryPlan<Value>;
     type Error = String;
 
     fn transform(&self, value: Self::Value) -> valid::Valid<Self::Value, Self::Error> {
-        // TODO: fix the container type to be dynamic
-        self.enrich_information(value, "Query")
+        self.iter(value, &self.root_type)
     }
 }
 
@@ -100,7 +124,7 @@ mod test {
 
     fn setup(graphql: &str) -> Index {
         let document = async_graphql_parser::parse_schema(graphql).unwrap();
-        
+
         Blueprint::parse_doc(document).to_index()
     }
 
@@ -127,7 +151,7 @@ mod test {
         let selection_set: SelectionSet<async_graphql_value::Value> =
             super::SelectionSet::from(&op);
 
-        let enriched_selection_set = Enrich::new(index)
+        let enriched_selection_set = Enrich::new(index, "Query".to_string())
             .transform(selection_set)
             .to_result()
             .unwrap();

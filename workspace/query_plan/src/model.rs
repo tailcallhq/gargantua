@@ -208,17 +208,80 @@ pub enum Lens {
 }
 
 impl Lens {
-    pub fn get(&self, _value: serde_json::Value) -> serde_json::Value {
-        // TODO: implement
-        todo!()
+    pub fn get(&self, value: serde_json::Value) -> serde_json::Value {
+        match self {
+            Lens::Field(key) => match value {
+                serde_json::Value::Object(obj) => {
+                    obj.get(key).cloned().unwrap_or(serde_json::Value::Null)
+                }
+                _ => serde_json::Value::Null,
+            },
+            Lens::Index(index) => match value {
+                serde_json::Value::Array(vec) => {
+                    vec.get(*index).cloned().unwrap_or(serde_json::Value::Null)
+                }
+                _ => serde_json::Value::Null,
+            },
+            Lens::Combine(first_lens, second_lens) => {
+                let value = first_lens.get(value);
+                second_lens.get(value)
+            }
+            Lens::ForEach(local_lens) => match value {
+                serde_json::Value::Array(vec) => serde_json::Value::Array(
+                    vec.into_iter().map(|value| local_lens.get(value)).collect(),
+                ),
+                serde_json::Value::Object(map) => serde_json::Value::Object(
+                    map.into_iter()
+                        .map(|(key, value)| (key, local_lens.get(value)))
+                        .collect(),
+                ),
+                _ => serde_json::Value::Null,
+            },
+            Lens::Empty => serde_json::Value::Null,
+        }
     }
+
     pub fn set(
         &self,
-        _value: serde_json::Value,
-        _other_value: serde_json::Value,
+        value: serde_json::Value,
+        other_value: serde_json::Value,
     ) -> serde_json::Value {
-        // TODO: implement
-        todo!()
+        match self {
+            Lens::Field(key) => match value {
+                serde_json::Value::Object(mut obj) => {
+                    obj.insert(key.clone(), other_value);
+                    serde_json::Value::Object(obj)
+                }
+                _ => serde_json::json!({ key: other_value }),
+            },
+            Lens::Index(index) => match value {
+                serde_json::Value::Array(mut vec) => {
+                    if index >= &vec.len() {
+                        vec.resize_with(index + 1, || serde_json::Value::Null);
+                    }
+                    vec[*index] = other_value;
+                    serde_json::Value::Array(vec)
+                }
+                _ => serde_json::json!([other_value]),
+            },
+            Lens::Combine(first_lens, second_lens) => {
+                let intermediate = first_lens.get(value.clone());
+                let second_value = second_lens.set(intermediate, other_value);
+                first_lens.set(value, second_value)
+            }
+            Lens::ForEach(local_lens) => match value {
+                serde_json::Value::Array(vec) => serde_json::Value::Array(
+                    vec.into_iter().map(|v| local_lens.set(v, other_value.clone())).collect(),
+                ),
+                serde_json::Value::Object(map) => serde_json::Value::Object(
+                    map.into_iter()
+                        .map(|(key, v)| (key, local_lens.set(v, other_value.clone())))
+                        .collect(),
+                ),
+                _ => other_value,
+            },
+            Lens::Empty => other_value,
+        }
     }
 }
 

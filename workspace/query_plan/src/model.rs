@@ -150,6 +150,10 @@ impl Lens {
     }
 }
 
+
+// FIXME: @karatakis Need to implement it for async_graphql
+// Drop the type-parameter A
+// Correctly implement and add tests
 impl<A> From<&Q::SelectionSet> for SelectionSet<A> {
     fn from(node: &Q::SelectionSet) -> SelectionSet<A> {
         let mut selection_set = Vec::new();

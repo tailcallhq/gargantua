@@ -208,16 +208,16 @@ mod test {
     fn test_complex() {
         let query = r#"
             query getData(
-                    $userId: String!,
-                    $sortOrder: String = DESC @onVariableDefinition,
-                    $region: String = "EU"
-                ) @onQuery {
+                $userId: String!
+                $sortOrder: String = DESC
+                $region: String = "EU"
+            ) @onQuery {
                 me: user(id: $userId) @onField {
                     id
                     username
                     role {
-                        id
-                        name
+                    id
+                    name
                     }
                 }
                 stores(first: 10, order: $sortOrder, region: $region) {

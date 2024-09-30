@@ -1,0 +1,123 @@
+---
+source: workspace/query_plan/src/model.rs
+expression: actual
+---
+Parallel(
+    [
+        Fetch {
+            service: Graph(
+                "WIP",
+            ),
+            query: SelectionSet(
+                [
+                    Field {
+                        name: "user",
+                        selections: SelectionSet(
+                            [
+                                Field {
+                                    name: "id",
+                                    selections: SelectionSet(
+                                        [],
+                                    ),
+                                    arguments: [],
+                                    directives: [],
+                                    is_hidden: false,
+                                    graph: [],
+                                    join_field: [],
+                                },
+                                Field {
+                                    name: "username",
+                                    selections: SelectionSet(
+                                        [],
+                                    ),
+                                    arguments: [],
+                                    directives: [],
+                                    is_hidden: false,
+                                    graph: [],
+                                    join_field: [],
+                                },
+                                Field {
+                                    name: "role",
+                                    selections: SelectionSet(
+                                        [
+                                            Field {
+                                                name: "id",
+                                                selections: SelectionSet(
+                                                    [],
+                                                ),
+                                                arguments: [],
+                                                directives: [],
+                                                is_hidden: false,
+                                                graph: [],
+                                                join_field: [],
+                                            },
+                                            Field {
+                                                name: "name",
+                                                selections: SelectionSet(
+                                                    [],
+                                                ),
+                                                arguments: [],
+                                                directives: [],
+                                                is_hidden: false,
+                                                graph: [],
+                                                join_field: [],
+                                            },
+                                        ],
+                                    ),
+                                    arguments: [],
+                                    directives: [],
+                                    is_hidden: false,
+                                    graph: [],
+                                    join_field: [],
+                                },
+                            ],
+                        ),
+                        arguments: [],
+                        directives: [],
+                        is_hidden: false,
+                        graph: [],
+                        join_field: [],
+                    },
+                    Field {
+                        name: "stores",
+                        selections: SelectionSet(
+                            [
+                                Field {
+                                    name: "id",
+                                    selections: SelectionSet(
+                                        [],
+                                    ),
+                                    arguments: [],
+                                    directives: [],
+                                    is_hidden: false,
+                                    graph: [],
+                                    join_field: [],
+                                },
+                                Field {
+                                    name: "name",
+                                    selections: SelectionSet(
+                                        [],
+                                    ),
+                                    arguments: [],
+                                    directives: [],
+                                    is_hidden: false,
+                                    graph: [],
+                                    join_field: [],
+                                },
+                            ],
+                        ),
+                        arguments: [],
+                        directives: [],
+                        is_hidden: false,
+                        graph: [],
+                        join_field: [],
+                    },
+                ],
+            ),
+            representations: None,
+            type_name: TypeName(
+                "Query",
+            ),
+        },
+    ],
+)

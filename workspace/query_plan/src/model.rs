@@ -131,6 +131,17 @@ pub enum Lens {
     Empty,
 }
 
+impl Lens {
+    pub fn get(&self, _value: serde_json::Value) -> serde_json::Value{
+        // TODO: implement
+        todo!()
+    }
+    pub fn set(&self, _value: serde_json::Value, _other_value: serde_json::Value) -> serde_json::Value{
+        // TODO: implement
+        todo!()
+    }
+}
+
 impl<A> From<&Q::SelectionSet> for SelectionSet<A> {
     fn from(node: &Q::SelectionSet) -> SelectionSet<A> {
         let mut selection_set = Vec::new();

@@ -1,0 +1,13 @@
+[package]
+name = "resolver"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+query_plan = { path = "../query_plan" }
+blueprint = { path = "../blueprint" }
+serde_json.workspace = true
+reqwest.workspace = true
+anyhow.workspace = true
+async-trait.workspace = true
+futures.workspace = true

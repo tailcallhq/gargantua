@@ -6,6 +6,12 @@ use crate::error::Error;
 use crate::QueryPlan;
 pub struct Minify<A>(PhantomData<A>);
 
+impl<A> Minify<A> {
+    pub fn new() -> Self {
+        Minify(PhantomData)
+    }
+}
+
 impl<A> Transform for Minify<A> {
     type Value = QueryPlan<A>;
     type Error = Error;

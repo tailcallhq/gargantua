@@ -1,1 +1,2 @@
+mod enrich;
 mod minify;

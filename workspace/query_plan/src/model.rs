@@ -71,6 +71,10 @@ impl<Value> SelectionSet<Value> {
     pub fn push(&mut self, field: Field<Value>) {
         self.0.push(field);
     }
+
+    pub fn into_vec(self) -> Vec<Field<Value>> {
+        self.0
+    }
 }
 
 #[derive(Debug, Clone, Setters)]
@@ -132,11 +136,15 @@ pub enum Lens {
 }
 
 impl Lens {
-    pub fn get(&self, _value: serde_json::Value) -> serde_json::Value{
+    pub fn get(&self, _value: serde_json::Value) -> serde_json::Value {
         // TODO: implement
         todo!()
     }
-    pub fn set(&self, _value: serde_json::Value, _other_value: serde_json::Value) -> serde_json::Value{
+    pub fn set(
+        &self,
+        _value: serde_json::Value,
+        _other_value: serde_json::Value,
+    ) -> serde_json::Value {
         // TODO: implement
         todo!()
     }

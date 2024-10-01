@@ -3,9 +3,8 @@ use std::rc::Rc;
 use blueprint::Index;
 use valid::Transform;
 
-use crate::QueryPlan;
-
 use super::{Enrich, Minify};
+use crate::QueryPlan;
 
 pub struct Preset<A> {
     index: Rc<Index>,

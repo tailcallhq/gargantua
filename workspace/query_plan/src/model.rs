@@ -316,7 +316,7 @@ fn extract_directives(
 
             Directive {
                 name: dir_node.name.into_inner().to_string(),
-                arguments: arguments,
+                arguments,
             }
         })
         .collect()

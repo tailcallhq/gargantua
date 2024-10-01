@@ -1,4 +1,5 @@
-use std::{marker::PhantomData, rc::Rc};
+use std::marker::PhantomData;
+use std::rc::Rc;
 
 use blueprint::{Index, QueryField};
 use valid::{Transform, Valid, Validator};
@@ -31,7 +32,7 @@ impl<Value: Clone> Enrich<Value> {
             }
         };
 
-        Valid::from_iter(selection.into_vec().into_iter(), |field| {
+        Valid::from_iter(selection.into_vec(), |field| {
             let field_def = match self.index.get_field(parent_type, &field.name) {
                 Some(QueryField::Field((def, _))) => def,
                 _ => {
@@ -139,7 +140,7 @@ impl<Value: Clone> Transform for Enrich<Value> {
             self.index.get_query(),
             "Root operation for `query` is not defined".to_string(),
         )
-        .and_then(|root_type| self.iter(value, &root_type))
+        .and_then(|root_type| self.iter(value, root_type))
     }
 }
 
@@ -160,7 +161,7 @@ mod test {
         let index = setup(include_str!(
             "../../../blueprint/src/fixtures/router.graphql"
         ));
-        let qp = QueryPlan::try_new(&query).unwrap();
+        let qp = QueryPlan::try_new(query).unwrap();
 
         let enriched_selection_set = Enrich::new(Rc::new(index))
             .transform(qp)

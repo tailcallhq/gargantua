@@ -2,140 +2,169 @@
 source: workspace/query_plan/src/transform/enrich.rs
 expression: enriched_selection_set
 ---
-SelectionSet(
+Parallel(
     [
-        Field {
-            name: "topProducts",
-            selections: SelectionSet(
-                [
-                    Field {
-                        name: "name",
-                        selections: SelectionSet(
-                            [],
-                        ),
-                        arguments: [],
-                        directives: [],
-                        is_hidden: false,
-                        graph: [],
-                        join_field: [
-                            JoinField {
-                                graph: Some(
-                                    Graph(
-                                        "PRODUCTS",
-                                    ),
-                                ),
-                                requires: None,
-                                provides: None,
-                                type: None,
-                                external: None,
-                                override: None,
-                                used_overridden: None,
-                            },
-                        ],
-                    },
-                    Field {
-                        name: "reviews",
-                        selections: SelectionSet(
-                            [
-                                Field {
-                                    name: "body",
-                                    selections: SelectionSet(
-                                        [],
-                                    ),
-                                    arguments: [],
-                                    directives: [],
-                                    is_hidden: false,
-                                    graph: [
-                                        Graph(
-                                            "REVIEWS",
-                                        ),
-                                    ],
-                                    join_field: [],
-                                },
-                            ],
-                        ),
-                        arguments: [],
-                        directives: [],
-                        is_hidden: false,
-                        graph: [],
-                        join_field: [
-                            JoinField {
-                                graph: Some(
-                                    Graph(
-                                        "REVIEWS",
-                                    ),
-                                ),
-                                requires: None,
-                                provides: None,
-                                type: None,
-                                external: None,
-                                override: None,
-                                used_overridden: None,
-                            },
-                        ],
-                    },
-                    Field {
-                        name: "reviews",
-                        selections: SelectionSet(
-                            [
-                                Field {
-                                    name: "id",
-                                    selections: SelectionSet(
-                                        [],
-                                    ),
-                                    arguments: [],
-                                    directives: [],
-                                    is_hidden: false,
-                                    graph: [
-                                        Graph(
-                                            "REVIEWS",
-                                        ),
-                                    ],
-                                    join_field: [],
-                                },
-                            ],
-                        ),
-                        arguments: [],
-                        directives: [],
-                        is_hidden: false,
-                        graph: [],
-                        join_field: [
-                            JoinField {
-                                graph: Some(
-                                    Graph(
-                                        "REVIEWS",
-                                    ),
-                                ),
-                                requires: None,
-                                provides: None,
-                                type: None,
-                                external: None,
-                                override: None,
-                                used_overridden: None,
-                            },
-                        ],
-                    },
-                ],
+        Fetch {
+            service: Graph(
+                "",
             ),
-            arguments: [],
-            directives: [],
-            is_hidden: false,
-            graph: [],
-            join_field: [
-                JoinField {
-                    graph: Some(
-                        Graph(
-                            "PRODUCTS",
-                        ),
-                    ),
-                    requires: None,
-                    provides: None,
-                    type: None,
-                    external: None,
-                    override: None,
-                    used_overridden: None,
-                },
-            ],
+            query: QueryOperation {
+                name: None,
+                ty: TypeName(
+                    "query",
+                ),
+                arguments: [],
+                directives: [],
+                selection_set: SelectionSet(
+                    [
+                        Field {
+                            name: "topProducts",
+                            alias: None,
+                            selections: SelectionSet(
+                                [
+                                    Field {
+                                        name: "name",
+                                        alias: Some(
+                                            "productName",
+                                        ),
+                                        selections: SelectionSet(
+                                            [],
+                                        ),
+                                        arguments: [],
+                                        directives: [],
+                                        is_hidden: false,
+                                        graph: [],
+                                        join_field: [
+                                            JoinField {
+                                                graph: Some(
+                                                    Graph(
+                                                        "PRODUCTS",
+                                                    ),
+                                                ),
+                                                requires: None,
+                                                provides: None,
+                                                type: None,
+                                                external: None,
+                                                override: None,
+                                                used_overridden: None,
+                                            },
+                                        ],
+                                    },
+                                    Field {
+                                        name: "reviews",
+                                        alias: None,
+                                        selections: SelectionSet(
+                                            [
+                                                Field {
+                                                    name: "body",
+                                                    alias: None,
+                                                    selections: SelectionSet(
+                                                        [],
+                                                    ),
+                                                    arguments: [],
+                                                    directives: [],
+                                                    is_hidden: false,
+                                                    graph: [
+                                                        Graph(
+                                                            "REVIEWS",
+                                                        ),
+                                                    ],
+                                                    join_field: [],
+                                                },
+                                            ],
+                                        ),
+                                        arguments: [],
+                                        directives: [],
+                                        is_hidden: false,
+                                        graph: [],
+                                        join_field: [
+                                            JoinField {
+                                                graph: Some(
+                                                    Graph(
+                                                        "REVIEWS",
+                                                    ),
+                                                ),
+                                                requires: None,
+                                                provides: None,
+                                                type: None,
+                                                external: None,
+                                                override: None,
+                                                used_overridden: None,
+                                            },
+                                        ],
+                                    },
+                                    Field {
+                                        name: "reviews",
+                                        alias: None,
+                                        selections: SelectionSet(
+                                            [
+                                                Field {
+                                                    name: "id",
+                                                    alias: None,
+                                                    selections: SelectionSet(
+                                                        [],
+                                                    ),
+                                                    arguments: [],
+                                                    directives: [],
+                                                    is_hidden: false,
+                                                    graph: [
+                                                        Graph(
+                                                            "REVIEWS",
+                                                        ),
+                                                    ],
+                                                    join_field: [],
+                                                },
+                                            ],
+                                        ),
+                                        arguments: [],
+                                        directives: [],
+                                        is_hidden: false,
+                                        graph: [],
+                                        join_field: [
+                                            JoinField {
+                                                graph: Some(
+                                                    Graph(
+                                                        "REVIEWS",
+                                                    ),
+                                                ),
+                                                requires: None,
+                                                provides: None,
+                                                type: None,
+                                                external: None,
+                                                override: None,
+                                                used_overridden: None,
+                                            },
+                                        ],
+                                    },
+                                ],
+                            ),
+                            arguments: [],
+                            directives: [],
+                            is_hidden: false,
+                            graph: [],
+                            join_field: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "PRODUCTS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                    ],
+                ),
+            },
+            representations: None,
+            type_name: TypeName(
+                "query",
+            ),
         },
     ],
 )

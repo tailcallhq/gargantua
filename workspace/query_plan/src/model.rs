@@ -11,48 +11,37 @@ use crate::error::Error;
 pub enum QueryPlan<Value> {
     Parallel(Vec<QueryPlan<Value>>),
     Sequence(Vec<QueryPlan<Value>>),
-    Fetch {
-        service: Graph,
-        query: QueryOperation<Value>,
-        representations: Option<SelectionSet<Value>>,
-        type_name: TypeName,
-    },
+    Fetch(FetchDefinition<Value>),
     Flatten {
         select: Lens,
         plan: Box<QueryPlan<Value>>,
     },
 }
 
-#[derive(Debug, Clone)]
-pub struct QueryOperation<Value> {
+#[derive(Debug, Clone, Setters)]
+pub struct FetchDefinition<Value> {
     pub name: Option<String>,
-    pub ty: TypeName,
     pub arguments: Vec<Argument<Value>>,
+    pub variables: Vec<VariableDefinition<Value>>,
     pub directives: Vec<Directive<Value>>,
     pub selection_set: SelectionSet<Value>,
+    pub representations: Option<SelectionSet<Value>>,
+    pub type_name: TypeName,
+    pub service: Option<Graph>,
+}
+
+#[derive(Debug, Clone)]
+pub struct VariableDefinition<Value> {
+    pub name: String,
+    pub type_name: TypeName,
+    pub arguments: Vec<Argument<Value>>,
+    pub directives: Vec<Directive<Value>>,
+    pub default_value: Option<Value>,
 }
 
 impl QueryPlan<async_graphql_value::Value> {
-    pub fn fetch(
-        name: Option<String>,
-        service: Graph,
-        type_name: TypeName,
-        query: SelectionSet<async_graphql_value::Value>,
-        directives: Vec<Directive<async_graphql_value::Value>>,
-        arguments: Vec<Argument<async_graphql_value::Value>>,
-    ) -> Self {
-        QueryPlan::Fetch {
-            service,
-            query: QueryOperation {
-                selection_set: query,
-                ty: type_name.clone(),
-                directives,
-                name,
-                arguments,
-            },
-            representations: None,
-            type_name,
-        }
+    pub fn fetch(fetch: FetchDefinition<async_graphql_value::Value>) -> Self {
+        QueryPlan::Fetch(fetch)
     }
 }
 
@@ -65,17 +54,26 @@ impl QueryPlan<async_graphql_value::Value> {
         // TODO: handle fragments
         for (name, Positioned { node: op, .. }) in doc.operations.iter() {
             let name = name.map(|n| n.to_string());
-            let selection = SelectionSet::from(&op.selection_set.node);
+            let selection_set = SelectionSet::from(&op.selection_set.node);
             let type_name = TypeName::new(&op.ty.to_string());
             let directives = extract_directives(op.directives.clone());
 
-            // TODO: parse arguments
             let arguments = Vec::new();
 
-            let service = Graph::new("");
-            parallel.push(QueryPlan::fetch(
-                name, service, type_name, selection, directives, arguments,
-            ));
+            let fetch = FetchDefinition {
+                name,
+                type_name,
+                arguments,
+                // TODO: parse variables
+                variables: Vec::new(),
+                directives,
+                selection_set,
+                representations: None,
+                service: None,
+            };
+
+            let fetch_op = QueryPlan::fetch(fetch);
+            parallel.push(fetch_op);
         }
 
         Ok(QueryPlan::Parallel(parallel))

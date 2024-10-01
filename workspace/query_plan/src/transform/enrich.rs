@@ -3,7 +3,7 @@ use std::{marker::PhantomData, rc::Rc};
 use blueprint::{Index, QueryField};
 use valid::{Transform, Valid, Validator};
 
-use crate::{QueryOperation, QueryPlan, SelectionSet};
+use crate::{FetchDefinition, QueryPlan, SelectionSet};
 
 pub struct Enrich<Value> {
     index: Rc<Index>,
@@ -85,19 +85,28 @@ impl<Value: Clone> Enrich<Value> {
         container_type: &str,
     ) -> Valid<QueryPlan<Value>, String> {
         match query {
-            QueryPlan::Fetch { service, query, representations, type_name } => self
-                .iter_sel(query.selection_set, container_type)
-                .map(|selection_set| QueryPlan::Fetch {
-                    service,
-                    query: QueryOperation {
+            QueryPlan::Fetch(FetchDefinition {
+                name,
+                arguments,
+                variables,
+                directives,
+                selection_set,
+                representations,
+                type_name,
+                service,
+            }) => self
+                .iter_sel(selection_set, container_type)
+                .map(|selection_set| {
+                    QueryPlan::Fetch(FetchDefinition {
+                        name,
+                        arguments,
+                        variables,
+                        directives,
                         selection_set,
-                        directives: query.directives,
-                        arguments: query.arguments,
-                        ty: query.ty,
-                        name: query.name,
-                    },
-                    representations,
-                    type_name,
+                        representations,
+                        type_name,
+                        service,
+                    })
                 }),
             QueryPlan::Flatten { select, plan } => self
                 .iter(*plan, container_type)

@@ -1,24 +1,41 @@
 name: CI
-'on':
+
+on:
   push:
     branches:
       - main
   pull_request:
     branches:
       - main
+
 jobs:
   Test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
       - name: Run Tests
         run: cargo test --workspace
+
   WASM:
     runs-on: ubuntu-latest
     steps:
-      - run: rustup target add wasm32-unknown-unknown
-      - run: cargo build --target wasm32-unknown-unknown --workspace
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          target: wasm32-unknown-unknown
+      - name: Build WASM
+        run: cargo build --target wasm32-unknown-unknown --workspace
+
   Validate:
     runs-on: ubuntu-latest
     steps:
@@ -29,7 +46,7 @@ jobs:
         with:
           node-version: '20'
       - name: Validate Workflows
-        run: |-
+        run: |
           npm i
           npm run build
           npm run check-workflows

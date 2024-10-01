@@ -4,19 +4,69 @@ expression: actual
 ---
 Parallel(
     [
-        Fetch {
-            service: Graph(
-                "WIP",
-            ),
-            query: QueryOperation {
+        Fetch(
+            FetchDefinition {
+                name: Some(
+                    "getData",
+                ),
+                arguments: [],
+                variables: [
+                    VariableDefinition {
+                        name: "userId",
+                        type_name: TypeName(
+                            "String",
+                        ),
+                        nullable: false,
+                        directives: [],
+                        default_value: None,
+                    },
+                    VariableDefinition {
+                        name: "sortOrder",
+                        type_name: TypeName(
+                            "String",
+                        ),
+                        nullable: true,
+                        directives: [],
+                        default_value: Some(
+                            Enum(
+                                Name(
+                                    "DESC",
+                                ),
+                            ),
+                        ),
+                    },
+                    VariableDefinition {
+                        name: "region",
+                        type_name: TypeName(
+                            "String",
+                        ),
+                        nullable: true,
+                        directives: [],
+                        default_value: Some(
+                            String(
+                                "EU",
+                            ),
+                        ),
+                    },
+                ],
+                directives: [
+                    Directive {
+                        name: "onQuery",
+                        arguments: [],
+                    },
+                ],
                 selection_set: SelectionSet(
                     [
                         Field {
                             name: "user",
+                            alias: Some(
+                                "me",
+                            ),
                             selections: SelectionSet(
                                 [
                                     Field {
                                         name: "id",
+                                        alias: None,
                                         selections: SelectionSet(
                                             [],
                                         ),
@@ -28,6 +78,9 @@ Parallel(
                                     },
                                     Field {
                                         name: "username",
+                                        alias: Some(
+                                            "nickname",
+                                        ),
                                         selections: SelectionSet(
                                             [],
                                         ),
@@ -39,10 +92,12 @@ Parallel(
                                     },
                                     Field {
                                         name: "role",
+                                        alias: None,
                                         selections: SelectionSet(
                                             [
                                                 Field {
                                                     name: "id",
+                                                    alias: None,
                                                     selections: SelectionSet(
                                                         [],
                                                     ),
@@ -54,6 +109,7 @@ Parallel(
                                                 },
                                                 Field {
                                                     name: "name",
+                                                    alias: None,
                                                     selections: SelectionSet(
                                                         [],
                                                     ),
@@ -73,18 +129,253 @@ Parallel(
                                     },
                                 ],
                             ),
-                            arguments: [],
-                            directives: [],
+                            arguments: [
+                                Argument {
+                                    name: "id",
+                                    value: Variable(
+                                        Name(
+                                            "userId",
+                                        ),
+                                    ),
+                                },
+                            ],
+                            directives: [
+                                Directive {
+                                    name: "onField",
+                                    arguments: [],
+                                },
+                            ],
                             is_hidden: false,
                             graph: [],
                             join_field: [],
                         },
                         Field {
                             name: "stores",
+                            alias: None,
                             selections: SelectionSet(
                                 [
                                     Field {
                                         name: "id",
+                                        alias: None,
+                                        selections: SelectionSet(
+                                            [],
+                                        ),
+                                        arguments: [],
+                                        directives: [
+                                            Directive {
+                                                name: "onField",
+                                                arguments: [
+                                                    Argument {
+                                                        name: "data",
+                                                        value: Number(
+                                                            Number(1),
+                                                        ),
+                                                    },
+                                                ],
+                                            },
+                                        ],
+                                        is_hidden: false,
+                                        graph: [],
+                                        join_field: [],
+                                    },
+                                    Field {
+                                        name: "name",
+                                        alias: None,
+                                        selections: SelectionSet(
+                                            [],
+                                        ),
+                                        arguments: [],
+                                        directives: [
+                                            Directive {
+                                                name: "onField",
+                                                arguments: [
+                                                    Argument {
+                                                        name: "data",
+                                                        value: Object(
+                                                            {
+                                                                Name(
+                                                                    "foo",
+                                                                ): String(
+                                                                    "bar",
+                                                                ),
+                                                            },
+                                                        ),
+                                                    },
+                                                ],
+                                            },
+                                        ],
+                                        is_hidden: false,
+                                        graph: [],
+                                        join_field: [],
+                                    },
+                                ],
+                            ),
+                            arguments: [
+                                Argument {
+                                    name: "first",
+                                    value: Number(
+                                        Number(10),
+                                    ),
+                                },
+                                Argument {
+                                    name: "order",
+                                    value: Variable(
+                                        Name(
+                                            "sortOrder",
+                                        ),
+                                    ),
+                                },
+                                Argument {
+                                    name: "region",
+                                    value: Variable(
+                                        Name(
+                                            "region",
+                                        ),
+                                    ),
+                                },
+                            ],
+                            directives: [],
+                            is_hidden: false,
+                            graph: [],
+                            join_field: [],
+                        },
+                    ],
+                ),
+                representations: None,
+                type_name: TypeName(
+                    "query",
+                ),
+                service: None,
+            },
+        ),
+        Fetch(
+            FetchDefinition {
+                name: Some(
+                    "logVisit",
+                ),
+                arguments: [],
+                variables: [],
+                directives: [
+                    Directive {
+                        name: "onMutation",
+                        arguments: [],
+                    },
+                ],
+                selection_set: SelectionSet(
+                    [
+                        Field {
+                            name: "logVisit",
+                            alias: None,
+                            selections: SelectionSet(
+                                [
+                                    Field {
+                                        name: "visit",
+                                        alias: None,
+                                        selections: SelectionSet(
+                                            [
+                                                Field {
+                                                    name: "id",
+                                                    alias: None,
+                                                    selections: SelectionSet(
+                                                        [],
+                                                    ),
+                                                    arguments: [],
+                                                    directives: [
+                                                        Directive {
+                                                            name: "onField",
+                                                            arguments: [],
+                                                        },
+                                                    ],
+                                                    is_hidden: false,
+                                                    graph: [],
+                                                    join_field: [],
+                                                },
+                                                Field {
+                                                    name: "date",
+                                                    alias: None,
+                                                    selections: SelectionSet(
+                                                        [],
+                                                    ),
+                                                    arguments: [],
+                                                    directives: [],
+                                                    is_hidden: false,
+                                                    graph: [],
+                                                    join_field: [],
+                                                },
+                                            ],
+                                        ),
+                                        arguments: [],
+                                        directives: [],
+                                        is_hidden: false,
+                                        graph: [],
+                                        join_field: [],
+                                    },
+                                ],
+                            ),
+                            arguments: [
+                                Argument {
+                                    name: "tag",
+                                    value: Number(
+                                        Number(123),
+                                    ),
+                                },
+                            ],
+                            directives: [
+                                Directive {
+                                    name: "onField",
+                                    arguments: [],
+                                },
+                            ],
+                            is_hidden: false,
+                            graph: [],
+                            join_field: [],
+                        },
+                    ],
+                ),
+                representations: None,
+                type_name: TypeName(
+                    "mutation",
+                ),
+                service: None,
+            },
+        ),
+        Fetch(
+            FetchDefinition {
+                name: Some(
+                    "newMessages",
+                ),
+                arguments: [],
+                variables: [
+                    VariableDefinition {
+                        name: "roomId",
+                        type_name: TypeName(
+                            "String",
+                        ),
+                        nullable: true,
+                        directives: [],
+                        default_value: Some(
+                            String(
+                                "welcome",
+                            ),
+                        ),
+                    },
+                ],
+                directives: [
+                    Directive {
+                        name: "onSubscription",
+                        arguments: [],
+                    },
+                ],
+                selection_set: SelectionSet(
+                    [
+                        Field {
+                            name: "newMessage",
+                            alias: None,
+                            selections: SelectionSet(
+                                [
+                                    Field {
+                                        name: "id",
+                                        alias: None,
                                         selections: SelectionSet(
                                             [],
                                         ),
@@ -95,7 +386,8 @@ Parallel(
                                         join_field: [],
                                     },
                                     Field {
-                                        name: "name",
+                                        name: "text",
+                                        alias: None,
                                         selections: SelectionSet(
                                             [],
                                         ),
@@ -107,7 +399,16 @@ Parallel(
                                     },
                                 ],
                             ),
-                            arguments: [],
+                            arguments: [
+                                Argument {
+                                    name: "room",
+                                    value: Variable(
+                                        Name(
+                                            "roomId",
+                                        ),
+                                    ),
+                                },
+                            ],
                             directives: [],
                             is_hidden: false,
                             graph: [],
@@ -115,11 +416,12 @@ Parallel(
                         },
                     ],
                 ),
+                representations: None,
+                type_name: TypeName(
+                    "subscription",
+                ),
+                service: None,
             },
-            representations: None,
-            type_name: TypeName(
-                "Query",
-            ),
-        },
+        ),
     ],
 )

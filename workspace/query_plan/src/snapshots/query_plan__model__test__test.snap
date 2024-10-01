@@ -4,19 +4,22 @@ expression: actual
 ---
 Parallel(
     [
-        Fetch {
-            service: Graph(
-                "WIP",
-            ),
-            query: QueryOperation {
+        Fetch(
+            FetchDefinition {
+                name: None,
+                arguments: [],
+                variables: [],
+                directives: [],
                 selection_set: SelectionSet(
                     [
                         Field {
                             name: "topProducts",
+                            alias: None,
                             selections: SelectionSet(
                                 [
                                     Field {
                                         name: "name",
+                                        alias: None,
                                         selections: SelectionSet(
                                             [],
                                         ),
@@ -28,10 +31,12 @@ Parallel(
                                     },
                                     Field {
                                         name: "reviews",
+                                        alias: None,
                                         selections: SelectionSet(
                                             [
                                                 Field {
                                                     name: "score",
+                                                    alias: None,
                                                     selections: SelectionSet(
                                                         [],
                                                     ),
@@ -51,10 +56,12 @@ Parallel(
                                     },
                                     Field {
                                         name: "reviews",
+                                        alias: None,
                                         selections: SelectionSet(
                                             [
                                                 Field {
                                                     name: "description",
+                                                    alias: None,
                                                     selections: SelectionSet(
                                                         [],
                                                     ),
@@ -82,11 +89,12 @@ Parallel(
                         },
                     ],
                 ),
+                representations: None,
+                type_name: TypeName(
+                    "query",
+                ),
+                service: None,
             },
-            representations: None,
-            type_name: TypeName(
-                "Query",
-            ),
-        },
+        ),
     ],
 )

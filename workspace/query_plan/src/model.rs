@@ -34,7 +34,7 @@ pub struct FetchDefinition<Value> {
 pub struct VariableDefinition<Value> {
     pub name: String,
     pub type_name: TypeName,
-    pub arguments: Vec<Argument<Value>>,
+    pub nullable: bool,
     pub directives: Vec<Directive<Value>>,
     pub default_value: Option<Value>,
 }
@@ -57,15 +57,13 @@ impl QueryPlan<async_graphql_value::Value> {
             let selection_set = SelectionSet::from(&op.selection_set.node);
             let type_name = TypeName::new(&op.ty.to_string());
             let directives = extract_directives(op.directives.clone());
-
-            let arguments = Vec::new();
+            let variables = extract_variables(op.variable_definitions.clone());
 
             let fetch = FetchDefinition {
                 name,
                 type_name,
-                arguments,
-                // TODO: parse variables
-                variables: Vec::new(),
+                arguments: Vec::new(),
+                variables,
                 directives,
                 selection_set,
                 representations: None,
@@ -328,6 +326,26 @@ fn extract_arguments(
             |(Positioned { node: name_node, .. }, Positioned { node: arg_node, .. })| Argument {
                 name: name_node.to_string(),
                 value: arg_node,
+            },
+        )
+        .collect()
+}
+
+fn extract_variables(
+    variable_definitions: Vec<Positioned<Q::VariableDefinition>>,
+) -> Vec<VariableDefinition<async_graphql_value::Value>> {
+    variable_definitions
+        .into_iter()
+        .map(
+            |Positioned { node: variable_node, .. }| VariableDefinition {
+                name: variable_node.name.node.to_string(),
+                type_name: TypeName::new(&variable_node.var_type.node.base.to_string()),
+                nullable: variable_node.var_type.node.nullable,
+                directives: extract_directives(variable_node.directives.clone()),
+                default_value: variable_node
+                    .default_value()
+                    .cloned()
+                    .map(|cv| cv.into_value()),
             },
         )
         .collect()

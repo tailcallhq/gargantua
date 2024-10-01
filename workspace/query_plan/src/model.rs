@@ -63,35 +63,11 @@ impl QueryPlan<async_graphql_value::Value> {
         let mut parallel = Vec::new();
 
         // TODO: handle fragments
-        // TODO: use named operations
         for (name, Positioned { node: op, .. }) in doc.operations.iter() {
             let name = name.map(|n| n.to_string());
             let selection = SelectionSet::from(&op.selection_set.node);
             let type_name = TypeName::new(&op.ty.to_string());
-            let directives = op
-                .directives
-                .clone()
-                .into_iter()
-                .map(|Positioned { node: dir_node, .. }| {
-                    let arguments = dir_node
-                        .arguments
-                        .into_iter()
-                        .map(
-                            |(
-                                Positioned { node: name_node, .. },
-                                Positioned { node: arg_node, .. },
-                            )| {
-                                Argument { name: name_node.to_string(), value: arg_node }
-                            },
-                        )
-                        .collect();
-
-                    Directive {
-                        name: dir_node.name.into_inner().to_string(),
-                        arguments: arguments,
-                    }
-                })
-                .collect();
+            let directives = extract_directives(op.directives.clone());
 
             // TODO: parse arguments
             let arguments = Vec::new();
@@ -271,7 +247,9 @@ impl Lens {
             }
             Lens::ForEach(local_lens) => match value {
                 serde_json::Value::Array(vec) => serde_json::Value::Array(
-                    vec.into_iter().map(|v| local_lens.set(v, other_value.clone())).collect(),
+                    vec.into_iter()
+                        .map(|v| local_lens.set(v, other_value.clone()))
+                        .collect(),
                 ),
                 serde_json::Value::Object(map) => serde_json::Value::Object(
                     map.into_iter()
@@ -300,40 +278,9 @@ impl From<&Q::SelectionSet> for SelectionSet<async_graphql_value::Value> {
                         .as_ref()
                         .map(|alias| alias.clone().into_inner().to_string());
 
-                    let arguments = node
-                        .arguments
-                        .clone()
-                        .into_iter()
-                        .map(
-                            |(
-                                Positioned { node: name_node, .. },
-                                Positioned { node: arg_node, .. },
-                            )| {
-                                Argument { name: name_node.to_string(), value: arg_node }
-                            },
-                        )
-                        .collect::<Vec<_>>();
+                    let arguments = extract_arguments(node.arguments.clone());
 
-                    let directives = node
-                        .directives
-                        .clone()
-                        .into_iter()
-                        .map(|Positioned { node: directive_node, .. }| {
-                            let arguments = directive_node
-                                .arguments
-                                .into_iter()
-                                .map(
-                                    |(
-                                        Positioned { node: name_node, .. },
-                                        Positioned { node: arg_node, .. },
-                                    )| {
-                                        Argument { name: name_node.to_string(), value: arg_node }
-                                    },
-                                )
-                                .collect();
-                            Directive { name: directive_node.name.to_string(), arguments }
-                        })
-                        .collect::<Vec<_>>();
+                    let directives = extract_directives(node.directives.clone());
 
                     let field =
                         Field::new(field_name, SelectionSet::from(&node.selection_set.node))
@@ -353,6 +300,39 @@ impl From<&Q::SelectionSet> for SelectionSet<async_graphql_value::Value> {
         }
         SelectionSet(selection_set)
     }
+}
+
+fn extract_directives(
+    directives: Vec<Positioned<Q::Directive>>,
+) -> Vec<Directive<async_graphql_value::Value>> {
+    directives
+        .into_iter()
+        .map(|Positioned { node: dir_node, .. }| {
+            let arguments = extract_arguments(dir_node.arguments);
+
+            Directive {
+                name: dir_node.name.into_inner().to_string(),
+                arguments: arguments,
+            }
+        })
+        .collect()
+}
+
+fn extract_arguments(
+    arguments: Vec<(
+        Positioned<async_graphql_value::Name>,
+        Positioned<async_graphql_value::Value>,
+    )>,
+) -> Vec<Argument<async_graphql_value::Value>> {
+    arguments
+        .into_iter()
+        .map(
+            |(Positioned { node: name_node, .. }, Positioned { node: arg_node, .. })| Argument {
+                name: name_node.to_string(),
+                value: arg_node,
+            },
+        )
+        .collect()
 }
 
 #[cfg(test)]

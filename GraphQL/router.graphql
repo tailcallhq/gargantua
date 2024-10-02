@@ -98,6 +98,7 @@ type Query
   @join__type(graph: REVIEWS) {
   me: User! @join__field(graph: ACCOUNTS)
   topProducts: [Product!]! @join__field(graph: PRODUCTS)
+  reviews: [Review!]! @join__field(graph: REVIEWS)
 }
 
 type Review @join__type(graph: REVIEWS) {

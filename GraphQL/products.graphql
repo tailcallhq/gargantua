@@ -1,27 +1,14 @@
-type Picture @shareable {
-  url: String!
-  width: Int!
-  height: Int!
+type Product @key(fields: "upc") {
+  upc: String!
+  name: String!
+  price: Int! @shareable
 }
 
 type Query {
-  me: User!
-}
-
-type User @key(fields: "id") {
-  id: ID!
-  username: String!
-  profilePicture: Picture
-  """
-  This used to be part of this subgraph, but is now being overridden from
-  `reviews`
-  """
-  reviewCount: Int!
-  joinedTimestamp: Int!
+  topProducts: [Product!]!
 }
 
 directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
-directive @lowercase on FIELD
 directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 extend schema
   @link(

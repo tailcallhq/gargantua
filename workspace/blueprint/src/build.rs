@@ -408,7 +408,7 @@ fn parse_join_graphs(definitions: Vec<Definition>) -> Vec<JoinGraph> {
 
 fn find_directive<Value: DeserializeOwned>(directives: &Vec<Directive>, name: &str) -> Vec<Value> {
     directives
-        .into_iter()
+        .iter()
         .filter(|directive| directive.name == name)
         .map(|directive| serde_json::from_value(directive.arguments.clone()).unwrap())
         .collect()

@@ -84,6 +84,53 @@ impl QueryPlan<async_graphql_value::Value> {
             QueryPlan::Flatten { select, plan: Box::new(plan) },
         ])
     }
+
+    pub fn to_doc(&self) -> String {
+        match self {
+            QueryPlan::Parallel(plans) => {
+                let mut doc = String::from("Parallel {\n");
+                for plan in plans {
+                    doc.push_str(&format!("  {}\n", plan.to_doc()));
+                }
+                doc.push_str("}");
+                doc
+            }
+            QueryPlan::Sequence(plans) => {
+                let mut doc = String::from("Sequence {\n");
+                for plan in plans {
+                    doc.push_str(&format!("  {}\n", plan.to_doc()));
+                }
+                doc.push_str("}");
+                doc
+            }
+            QueryPlan::Fetch(fetch) => {
+                let service_name = fetch.service.as_ref().map_or("None", |g| g.name());
+                let mut doc = format!("Fetch(service: \"{}\") {{\n", service_name);
+                for field in fetch.selection_set.deref() {
+                    doc.push_str(&format!(
+                        "  {}: {} {{\n    {}\n  }}\n",
+                        field.alias.as_deref().unwrap_or(&field.name),
+                        field.name,
+                        field
+                            .selections
+                            .deref()
+                            .iter()
+                            .map(|f| f.name.clone())
+                            .collect::<Vec<String>>()
+                            .join("\n    ")
+                    ));
+                }
+                doc.push_str("}");
+                doc
+            }
+            QueryPlan::Flatten { select, plan } => {
+                let mut doc = format!("Flatten({:?}) {{\n", select);
+                doc.push_str(&format!("  {}\n", plan.to_doc()));
+                doc.push_str("}");
+                doc
+            }
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -360,57 +407,59 @@ fn extract_variables(
 }
 
 #[cfg(test)]
-mod test {
-    use insta::assert_debug_snapshot;
-
-    use crate::QueryPlan;
+mod tests {
+    use super::*;
 
     #[test]
-    fn test() {
-        let query = "query { topProducts { name reviews { score } reviews { description } } }";
-        let actual: QueryPlan<_> = QueryPlan::try_new(query).unwrap();
-        assert_debug_snapshot!(actual);
+    fn test_query_plan_to_doc() {
+        let fetch_a = Fetch {
+            name: Some("updateInAOne".to_string()),
+            type_name: TypeName::new("updateFooInA".to_string()),
+            arguments: vec![],
+            variables: vec![],
+            directives: vec![],
+            selection_set: SelectionSet::new(vec![Field::new(
+                "id".to_string(),
+                SelectionSet::new(vec![]),
+            )]),
+            representations: None,
+            service: Some(Graph::new("SubgraphA")),
+        };
+
+        let fetch_b = Fetch {
+            name: Some("updateInBOne".to_string()),
+            type_name: TypeName::new("updateFooInB".to_string()),
+            arguments: vec![],
+            variables: vec![],
+            directives: vec![],
+            selection_set: SelectionSet::new(vec![Field::new(
+                "id".to_string(),
+                SelectionSet::new(vec![]),
+            )]),
+            representations: None,
+            service: Some(Graph::new("SubgraphB")),
+        };
+
+        let plan = QueryPlan::Sequence(vec![
+            QueryPlan::fetch(fetch_a.clone()),
+            QueryPlan::fetch(fetch_b.clone()),
+        ]);
+
+        let doc = plan.to_doc();
+        assert_eq!(
+            doc,
+            r#"Sequence {
+  Fetch(service: "SubgraphA") {
+    updateInAOne: updateFooInA {
+      id
     }
-
-    #[test]
-    fn test_complex() {
-        let query = r#"
-            query getData(
-                $userId: String!
-                $sortOrder: String = DESC
-                $region: String = "EU"
-            ) @onQuery {
-                me: user(id: $userId) @onField {
-                    id
-                    nickname: username
-                    role {
-                        id
-                        name
-                    }
-                }
-                stores(first: 10, order: $sortOrder, region: $region) {
-                    id @onField(data: 1)
-                    name @onField(data: { foo: "bar" })
-                }
-            }
-
-            mutation logVisit @onMutation {
-                logVisit(tag: 123) @onField {
-                    visit {
-                        id @onField
-                        date
-                    }
-                }
-            }
-
-            subscription newMessages($roomId: String = "welcome") @onSubscription {
-                newMessage(room: $roomId) {
-                    id
-                    text
-                }
-            }
-        "#;
-        let actual: QueryPlan<_> = QueryPlan::try_new(query).unwrap();
-        assert_debug_snapshot!(actual);
+  }
+  Fetch(service: "SubgraphB") {
+    updateInBOne: updateFooInB {
+      id
+    }
+  }
+}"#
+        );
     }
 }

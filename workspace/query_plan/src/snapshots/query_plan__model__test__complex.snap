@@ -7,195 +7,6 @@ Parallel(
         Fetch(
             Fetch {
                 name: Some(
-                    "logVisit",
-                ),
-                arguments: [],
-                variables: [],
-                directives: [
-                    Directive {
-                        name: "onMutation",
-                        arguments: [],
-                    },
-                ],
-                selection_set: SelectionSet(
-                    [
-                        Field {
-                            name: "logVisit",
-                            alias: None,
-                            selections: SelectionSet(
-                                [
-                                    Field {
-                                        name: "visit",
-                                        alias: None,
-                                        selections: SelectionSet(
-                                            [
-                                                Field {
-                                                    name: "id",
-                                                    alias: None,
-                                                    selections: SelectionSet(
-                                                        [],
-                                                    ),
-                                                    arguments: [],
-                                                    directives: [
-                                                        Directive {
-                                                            name: "onField",
-                                                            arguments: [],
-                                                        },
-                                                    ],
-                                                    is_hidden: false,
-                                                    graph: [],
-                                                    join_field: [],
-                                                    field_type: None,
-                                                    parent_type: None,
-                                                },
-                                                Field {
-                                                    name: "date",
-                                                    alias: None,
-                                                    selections: SelectionSet(
-                                                        [],
-                                                    ),
-                                                    arguments: [],
-                                                    directives: [],
-                                                    is_hidden: false,
-                                                    graph: [],
-                                                    join_field: [],
-                                                    field_type: None,
-                                                    parent_type: None,
-                                                },
-                                            ],
-                                        ),
-                                        arguments: [],
-                                        directives: [],
-                                        is_hidden: false,
-                                        graph: [],
-                                        join_field: [],
-                                        field_type: None,
-                                        parent_type: None,
-                                    },
-                                ],
-                            ),
-                            arguments: [
-                                Argument {
-                                    name: "tag",
-                                    value: Number(
-                                        Number(123),
-                                    ),
-                                },
-                            ],
-                            directives: [
-                                Directive {
-                                    name: "onField",
-                                    arguments: [],
-                                },
-                            ],
-                            is_hidden: false,
-                            graph: [],
-                            join_field: [],
-                            field_type: None,
-                            parent_type: None,
-                        },
-                    ],
-                ),
-                representations: None,
-                type_name: TypeName(
-                    "mutation",
-                ),
-                service: None,
-            },
-        ),
-        Fetch(
-            Fetch {
-                name: Some(
-                    "newMessages",
-                ),
-                arguments: [],
-                variables: [
-                    VariableDefinition {
-                        name: "roomId",
-                        type_name: TypeName(
-                            "String",
-                        ),
-                        nullable: true,
-                        directives: [],
-                        default_value: Some(
-                            String(
-                                "welcome",
-                            ),
-                        ),
-                    },
-                ],
-                directives: [
-                    Directive {
-                        name: "onSubscription",
-                        arguments: [],
-                    },
-                ],
-                selection_set: SelectionSet(
-                    [
-                        Field {
-                            name: "newMessage",
-                            alias: None,
-                            selections: SelectionSet(
-                                [
-                                    Field {
-                                        name: "id",
-                                        alias: None,
-                                        selections: SelectionSet(
-                                            [],
-                                        ),
-                                        arguments: [],
-                                        directives: [],
-                                        is_hidden: false,
-                                        graph: [],
-                                        join_field: [],
-                                        field_type: None,
-                                        parent_type: None,
-                                    },
-                                    Field {
-                                        name: "text",
-                                        alias: None,
-                                        selections: SelectionSet(
-                                            [],
-                                        ),
-                                        arguments: [],
-                                        directives: [],
-                                        is_hidden: false,
-                                        graph: [],
-                                        join_field: [],
-                                        field_type: None,
-                                        parent_type: None,
-                                    },
-                                ],
-                            ),
-                            arguments: [
-                                Argument {
-                                    name: "room",
-                                    value: Variable(
-                                        Name(
-                                            "roomId",
-                                        ),
-                                    ),
-                                },
-                            ],
-                            directives: [],
-                            is_hidden: false,
-                            graph: [],
-                            join_field: [],
-                            field_type: None,
-                            parent_type: None,
-                        },
-                    ],
-                ),
-                representations: None,
-                type_name: TypeName(
-                    "subscription",
-                ),
-                service: None,
-            },
-        ),
-        Fetch(
-            Fetch {
-                name: Some(
                     "getData",
                 ),
                 arguments: [],
@@ -451,6 +262,195 @@ Parallel(
                 representations: None,
                 type_name: TypeName(
                     "query",
+                ),
+                service: None,
+            },
+        ),
+        Fetch(
+            Fetch {
+                name: Some(
+                    "logVisit",
+                ),
+                arguments: [],
+                variables: [],
+                directives: [
+                    Directive {
+                        name: "onMutation",
+                        arguments: [],
+                    },
+                ],
+                selection_set: SelectionSet(
+                    [
+                        Field {
+                            name: "logVisit",
+                            alias: None,
+                            selections: SelectionSet(
+                                [
+                                    Field {
+                                        name: "visit",
+                                        alias: None,
+                                        selections: SelectionSet(
+                                            [
+                                                Field {
+                                                    name: "id",
+                                                    alias: None,
+                                                    selections: SelectionSet(
+                                                        [],
+                                                    ),
+                                                    arguments: [],
+                                                    directives: [
+                                                        Directive {
+                                                            name: "onField",
+                                                            arguments: [],
+                                                        },
+                                                    ],
+                                                    is_hidden: false,
+                                                    graph: [],
+                                                    join_field: [],
+                                                    field_type: None,
+                                                    parent_type: None,
+                                                },
+                                                Field {
+                                                    name: "date",
+                                                    alias: None,
+                                                    selections: SelectionSet(
+                                                        [],
+                                                    ),
+                                                    arguments: [],
+                                                    directives: [],
+                                                    is_hidden: false,
+                                                    graph: [],
+                                                    join_field: [],
+                                                    field_type: None,
+                                                    parent_type: None,
+                                                },
+                                            ],
+                                        ),
+                                        arguments: [],
+                                        directives: [],
+                                        is_hidden: false,
+                                        graph: [],
+                                        join_field: [],
+                                        field_type: None,
+                                        parent_type: None,
+                                    },
+                                ],
+                            ),
+                            arguments: [
+                                Argument {
+                                    name: "tag",
+                                    value: Number(
+                                        Number(123),
+                                    ),
+                                },
+                            ],
+                            directives: [
+                                Directive {
+                                    name: "onField",
+                                    arguments: [],
+                                },
+                            ],
+                            is_hidden: false,
+                            graph: [],
+                            join_field: [],
+                            field_type: None,
+                            parent_type: None,
+                        },
+                    ],
+                ),
+                representations: None,
+                type_name: TypeName(
+                    "mutation",
+                ),
+                service: None,
+            },
+        ),
+        Fetch(
+            Fetch {
+                name: Some(
+                    "newMessages",
+                ),
+                arguments: [],
+                variables: [
+                    VariableDefinition {
+                        name: "roomId",
+                        type_name: TypeName(
+                            "String",
+                        ),
+                        nullable: true,
+                        directives: [],
+                        default_value: Some(
+                            String(
+                                "welcome",
+                            ),
+                        ),
+                    },
+                ],
+                directives: [
+                    Directive {
+                        name: "onSubscription",
+                        arguments: [],
+                    },
+                ],
+                selection_set: SelectionSet(
+                    [
+                        Field {
+                            name: "newMessage",
+                            alias: None,
+                            selections: SelectionSet(
+                                [
+                                    Field {
+                                        name: "id",
+                                        alias: None,
+                                        selections: SelectionSet(
+                                            [],
+                                        ),
+                                        arguments: [],
+                                        directives: [],
+                                        is_hidden: false,
+                                        graph: [],
+                                        join_field: [],
+                                        field_type: None,
+                                        parent_type: None,
+                                    },
+                                    Field {
+                                        name: "text",
+                                        alias: None,
+                                        selections: SelectionSet(
+                                            [],
+                                        ),
+                                        arguments: [],
+                                        directives: [],
+                                        is_hidden: false,
+                                        graph: [],
+                                        join_field: [],
+                                        field_type: None,
+                                        parent_type: None,
+                                    },
+                                ],
+                            ),
+                            arguments: [
+                                Argument {
+                                    name: "room",
+                                    value: Variable(
+                                        Name(
+                                            "roomId",
+                                        ),
+                                    ),
+                                },
+                            ],
+                            directives: [],
+                            is_hidden: false,
+                            graph: [],
+                            join_field: [],
+                            field_type: None,
+                            parent_type: None,
+                        },
+                    ],
+                ),
+                representations: None,
+                type_name: TypeName(
+                    "subscription",
                 ),
                 service: None,
             },

@@ -2,7 +2,7 @@ use std::ops::Deref;
 
 use async_graphql::Positioned;
 use async_graphql_parser::types::{self as Q};
-use blueprint::{Graph, JoinField};
+use blueprint::{Graph, JoinFieldParsed};
 use derive_setters::Setters;
 
 use crate::error::Error;
@@ -140,7 +140,7 @@ pub struct Field<Value> {
     pub graph: Vec<Graph>,
 
     /// Internal readonly information from the Blueprint Index.
-    pub join_field: Vec<JoinField>,
+    pub join_field: Vec<JoinFieldParsed>,
 
     /// The type of the field.
     pub field_type: Option<TypeName>,

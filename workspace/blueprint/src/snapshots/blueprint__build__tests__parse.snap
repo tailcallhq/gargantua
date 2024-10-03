@@ -237,14 +237,24 @@ expression: blueprint
         "join_types": [
           {
             "graph": "PRODUCTS",
-            "key": "upc",
+            "key": [
+              {
+                "name": "upc",
+                "selections": []
+              }
+            ],
             "extension": true,
             "resolvable": true,
             "is_interface_object": true
           },
           {
             "graph": "REVIEWS",
-            "key": "upc",
+            "key": [
+              {
+                "name": "upc",
+                "selections": []
+              }
+            ],
             "extension": true,
             "resolvable": true,
             "is_interface_object": true
@@ -422,7 +432,12 @@ expression: blueprint
               {
                 "graph": "REVIEWS",
                 "requires": null,
-                "provides": "price",
+                "provides": [
+                  {
+                    "name": "price",
+                    "selections": []
+                  }
+                ],
                 "type": null,
                 "external": null,
                 "override": null,
@@ -745,7 +760,12 @@ expression: blueprint
             "join_fields": [
               {
                 "graph": "REVIEWS",
-                "requires": "joinedTimestamp",
+                "requires": [
+                  {
+                    "name": "joinedTimestamp",
+                    "selections": []
+                  }
+                ],
                 "provides": null,
                 "type": null,
                 "external": null,
@@ -760,14 +780,24 @@ expression: blueprint
         "join_types": [
           {
             "graph": "ACCOUNTS",
-            "key": "id",
+            "key": [
+              {
+                "name": "id",
+                "selections": []
+              }
+            ],
             "extension": true,
             "resolvable": true,
             "is_interface_object": true
           },
           {
             "graph": "REVIEWS",
-            "key": "id",
+            "key": [
+              {
+                "name": "id",
+                "selections": []
+              }
+            ],
             "extension": true,
             "resolvable": true,
             "is_interface_object": true

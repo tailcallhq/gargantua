@@ -30,7 +30,7 @@ Parallel(
                                         is_hidden: false,
                                         graph: [],
                                         join_field: [
-                                            JoinField {
+                                            JoinFieldParsed {
                                                 graph: Some(
                                                     Graph(
                                                         "PRODUCTS",
@@ -93,7 +93,7 @@ Parallel(
                                         is_hidden: false,
                                         graph: [],
                                         join_field: [
-                                            JoinField {
+                                            JoinFieldParsed {
                                                 graph: Some(
                                                     Graph(
                                                         "REVIEWS",
@@ -156,7 +156,7 @@ Parallel(
                                         is_hidden: false,
                                         graph: [],
                                         join_field: [
-                                            JoinField {
+                                            JoinFieldParsed {
                                                 graph: Some(
                                                     Graph(
                                                         "REVIEWS",
@@ -188,7 +188,7 @@ Parallel(
                             is_hidden: false,
                             graph: [],
                             join_field: [
-                                JoinField {
+                                JoinFieldParsed {
                                     graph: Some(
                                         Graph(
                                             "PRODUCTS",

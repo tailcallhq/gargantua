@@ -2,10 +2,17 @@ import * as fs from "fs/promises";
 import { workflow as mainWorkflow } from "./workflow";
 import * as yml from "js-yaml";
 import * as path from "path";
+import { GeneratedWorkflowTypes } from "github-actions-workflow-ts";
+
+function toYAML(workflow: Partial<GeneratedWorkflowTypes.Workflow>): string {
+  const content = yml.dump(workflow, { noRefs: true });
+  const header = `# This file is generated. Do not edit it manually!\n`;
+  return header + content;
+}
 
 async function generateWorkflow() {
   const workflowYaml = mainWorkflow.workflow;
-  const content = yml.dump(workflowYaml);
+  const content = toYAML(workflowYaml);
   const loc = path.resolve(`.github/workflows/${mainWorkflow?.filename}.yml`);
 
   await fs.writeFile(loc, content);
@@ -14,7 +21,7 @@ async function generateWorkflow() {
 
 async function checkWorkflow() {
   const workflowYaml = mainWorkflow.workflow;
-  const expected = yml.dump(workflowYaml);
+  const expected = toYAML(workflowYaml);
   const actual = await fs.readFile(
     `.github/workflows/${mainWorkflow?.filename}.yml`,
   );

@@ -16,7 +16,7 @@ const setupNode = new Step({
 const checkWorkflow = new Step({
   name: "Validate Workflows",
   run: ["npm run build", "npm run check-workflows"]
-    .map((_) => _.trim)
+    .map((_) => _.trim())
     .join("\n"),
 });
 

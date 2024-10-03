@@ -6,6 +6,7 @@
     "generate-workflows": "node ./wac/cli.js generate",
     "check-workflows": "node ./wac/cli.js check",
     "prettier": "prettier --write .",
+    "prettier:check": "prettier --check .",
     "build": "tsc --build"
   },
   "keywords": [],

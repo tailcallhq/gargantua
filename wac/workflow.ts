@@ -37,6 +37,11 @@ const runTests = new Step({
   run: "cargo test --workspace",
 });
 
+const runPrettier = new Step({
+  name: "Run Prettier",
+  run: "npm run prettier:check",
+});
+
 // Wasm build job
 const wasmBuildJob = new NormalJob("WASM", {
   "runs-on": MACHINE,
@@ -50,9 +55,14 @@ const wasmBuildJob = new NormalJob("WASM", {
 ]);
 
 // Default job
-const defaultJob = new NormalJob("Test", {
+const workspaceLintJob = new NormalJob("Test", {
   "runs-on": MACHINE,
-}).addSteps([checkoutStep(), runRustfmtStep, runClippyStep, runTests]);
+}).addSteps([checkoutStep(), runTests]);
+
+// Default job
+const workspaceTestJob = new NormalJob("Format", {
+  "runs-on": MACHINE,
+}).addSteps([checkoutStep(), runPrettier, runRustfmtStep, runClippyStep]);
 
 // Workflow validation job
 const workflowValidateJob = new NormalJob("Validate", {
@@ -69,4 +79,9 @@ export const workflow = new Workflow("ci", {
       branches: ["main"],
     },
   },
-}).addJobs([defaultJob, wasmBuildJob, workflowValidateJob]);
+}).addJobs([
+  workspaceLintJob,
+  workspaceTestJob,
+  wasmBuildJob,
+  workflowValidateJob,
+]);

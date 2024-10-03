@@ -1,5 +1,5 @@
 name: CI
-'on':
+"on":
   push:
     branches:
       - main
@@ -38,7 +38,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
       - name: Validate Workflows
         run: |-
           npm i

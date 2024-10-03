@@ -1,0 +1,1823 @@
+---
+source: workspace/query_plan_alt/src/model.rs
+expression: blueprint.to_index()
+---
+Index {
+    map: {
+        "Order": (
+            Object(
+                ObjectTypeDefinition {
+                    name: "Order",
+                    fields: [
+                        FieldDefinition {
+                            name: "id",
+                            args: [],
+                            of_type: Named {
+                                name: "ID",
+                                required: true,
+                            },
+                            directives: [],
+                            description: None,
+                            join_fields: [],
+                        },
+                        FieldDefinition {
+                            name: "quantity",
+                            args: [],
+                            of_type: Named {
+                                name: "Int",
+                                required: true,
+                            },
+                            directives: [],
+                            description: None,
+                            join_fields: [],
+                        },
+                        FieldDefinition {
+                            name: "product",
+                            args: [],
+                            of_type: Named {
+                                name: "Product",
+                                required: true,
+                            },
+                            directives: [],
+                            description: None,
+                            join_fields: [],
+                        },
+                    ],
+                    description: None,
+                    implements: {},
+                    join_types: [
+                        JoinType {
+                            graph: Graph(
+                                "ORDERS",
+                            ),
+                            key: None,
+                            extension: true,
+                            resolvable: true,
+                            is_interface_object: true,
+                        },
+                    ],
+                    join_implements: [],
+                },
+            ),
+            {
+                "id": Field(
+                    (
+                        FieldDefinition {
+                            name: "id",
+                            args: [],
+                            of_type: Named {
+                                name: "ID",
+                                required: true,
+                            },
+                            directives: [],
+                            description: None,
+                            join_fields: [],
+                        },
+                        {},
+                    ),
+                ),
+                "quantity": Field(
+                    (
+                        FieldDefinition {
+                            name: "quantity",
+                            args: [],
+                            of_type: Named {
+                                name: "Int",
+                                required: true,
+                            },
+                            directives: [],
+                            description: None,
+                            join_fields: [],
+                        },
+                        {},
+                    ),
+                ),
+                "product": Field(
+                    (
+                        FieldDefinition {
+                            name: "product",
+                            args: [],
+                            of_type: Named {
+                                name: "Product",
+                                required: true,
+                            },
+                            directives: [],
+                            description: None,
+                            join_fields: [],
+                        },
+                        {},
+                    ),
+                ),
+            },
+        ),
+        "Photo": (
+            Object(
+                ObjectTypeDefinition {
+                    name: "Photo",
+                    fields: [
+                        FieldDefinition {
+                            name: "url",
+                            args: [],
+                            of_type: Named {
+                                name: "String",
+                                required: false,
+                            },
+                            directives: [],
+                            description: None,
+                            join_fields: [],
+                        },
+                    ],
+                    description: None,
+                    implements: {},
+                    join_types: [
+                        JoinType {
+                            graph: Graph(
+                                "AUTH",
+                            ),
+                            key: None,
+                            extension: true,
+                            resolvable: true,
+                            is_interface_object: true,
+                        },
+                        JoinType {
+                            graph: Graph(
+                                "USERS",
+                            ),
+                            key: None,
+                            extension: true,
+                            resolvable: true,
+                            is_interface_object: true,
+                        },
+                    ],
+                    join_implements: [],
+                },
+            ),
+            {
+                "url": Field(
+                    (
+                        FieldDefinition {
+                            name: "url",
+                            args: [],
+                            of_type: Named {
+                                name: "String",
+                                required: false,
+                            },
+                            directives: [],
+                            description: None,
+                            join_fields: [],
+                        },
+                        {},
+                    ),
+                ),
+            },
+        ),
+        "Product": (
+            Object(
+                ObjectTypeDefinition {
+                    name: "Product",
+                    fields: [
+                        FieldDefinition {
+                            name: "id",
+                            args: [],
+                            of_type: Named {
+                                name: "ID",
+                                required: true,
+                            },
+                            directives: [],
+                            description: None,
+                            join_fields: [],
+                        },
+                        FieldDefinition {
+                            name: "orders",
+                            args: [],
+                            of_type: List {
+                                of_type: Named {
+                                    name: "Order",
+                                    required: true,
+                                },
+                                non_null: true,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("ORDERS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "ORDERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        FieldDefinition {
+                            name: "name",
+                            args: [],
+                            of_type: Named {
+                                name: "String",
+                                required: true,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("PRODUCTS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "PRODUCTS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        FieldDefinition {
+                            name: "price",
+                            args: [],
+                            of_type: Named {
+                                name: "Float",
+                                required: true,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("PRODUCTS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "PRODUCTS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                    ],
+                    description: None,
+                    implements: {},
+                    join_types: [
+                        JoinType {
+                            graph: Graph(
+                                "ORDERS",
+                            ),
+                            key: Some(
+                                "id",
+                            ),
+                            extension: true,
+                            resolvable: true,
+                            is_interface_object: true,
+                        },
+                        JoinType {
+                            graph: Graph(
+                                "PRODUCTS",
+                            ),
+                            key: Some(
+                                "id",
+                            ),
+                            extension: true,
+                            resolvable: true,
+                            is_interface_object: true,
+                        },
+                    ],
+                    join_implements: [],
+                },
+            ),
+            {
+                "id": Field(
+                    (
+                        FieldDefinition {
+                            name: "id",
+                            args: [],
+                            of_type: Named {
+                                name: "ID",
+                                required: true,
+                            },
+                            directives: [],
+                            description: None,
+                            join_fields: [],
+                        },
+                        {},
+                    ),
+                ),
+                "orders": Field(
+                    (
+                        FieldDefinition {
+                            name: "orders",
+                            args: [],
+                            of_type: List {
+                                of_type: Named {
+                                    name: "Order",
+                                    required: true,
+                                },
+                                non_null: true,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("ORDERS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "ORDERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        {},
+                    ),
+                ),
+                "name": Field(
+                    (
+                        FieldDefinition {
+                            name: "name",
+                            args: [],
+                            of_type: Named {
+                                name: "String",
+                                required: true,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("PRODUCTS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "PRODUCTS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        {},
+                    ),
+                ),
+                "price": Field(
+                    (
+                        FieldDefinition {
+                            name: "price",
+                            args: [],
+                            of_type: Named {
+                                name: "Float",
+                                required: true,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("PRODUCTS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "PRODUCTS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        {},
+                    ),
+                ),
+            },
+        ),
+        "Query": (
+            Object(
+                ObjectTypeDefinition {
+                    name: "Query",
+                    fields: [
+                        FieldDefinition {
+                            name: "me",
+                            args: [],
+                            of_type: Named {
+                                name: "User",
+                                required: false,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("AUTH"),
+                                        "type": String("User!"),
+                                    },
+                                },
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("ORDERS"),
+                                        "type": String("User"),
+                                    },
+                                },
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("USERS"),
+                                        "type": String("User"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "AUTH",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: Some(
+                                        "User!",
+                                    ),
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "ORDERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: Some(
+                                        "User",
+                                    ),
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "USERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: Some(
+                                        "User",
+                                    ),
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        FieldDefinition {
+                            name: "orders",
+                            args: [
+                                InputFieldDefinition {
+                                    name: "userId",
+                                    of_type: Named {
+                                        name: "ID",
+                                        required: true,
+                                    },
+                                    default_value: None,
+                                    description: None,
+                                    join_fields: [],
+                                },
+                            ],
+                            of_type: List {
+                                of_type: Named {
+                                    name: "Order",
+                                    required: true,
+                                },
+                                non_null: true,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("ORDERS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "ORDERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        FieldDefinition {
+                            name: "product",
+                            args: [
+                                InputFieldDefinition {
+                                    name: "id",
+                                    of_type: Named {
+                                        name: "ID",
+                                        required: true,
+                                    },
+                                    default_value: None,
+                                    description: None,
+                                    join_fields: [],
+                                },
+                            ],
+                            of_type: Named {
+                                name: "Product",
+                                required: false,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("ORDERS"),
+                                    },
+                                },
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("PRODUCTS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "ORDERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "PRODUCTS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        FieldDefinition {
+                            name: "products",
+                            args: [],
+                            of_type: List {
+                                of_type: Named {
+                                    name: "Product",
+                                    required: true,
+                                },
+                                non_null: true,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("PRODUCTS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "PRODUCTS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        FieldDefinition {
+                            name: "users",
+                            args: [],
+                            of_type: List {
+                                of_type: Named {
+                                    name: "User",
+                                    required: true,
+                                },
+                                non_null: true,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("USERS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "USERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        FieldDefinition {
+                            name: "user",
+                            args: [
+                                InputFieldDefinition {
+                                    name: "id",
+                                    of_type: Named {
+                                        name: "ID",
+                                        required: true,
+                                    },
+                                    default_value: None,
+                                    description: None,
+                                    join_fields: [],
+                                },
+                            ],
+                            of_type: Named {
+                                name: "User",
+                                required: false,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("USERS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "USERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                    ],
+                    description: None,
+                    implements: {},
+                    join_types: [
+                        JoinType {
+                            graph: Graph(
+                                "AUTH",
+                            ),
+                            key: None,
+                            extension: true,
+                            resolvable: true,
+                            is_interface_object: true,
+                        },
+                        JoinType {
+                            graph: Graph(
+                                "ORDERS",
+                            ),
+                            key: None,
+                            extension: true,
+                            resolvable: true,
+                            is_interface_object: true,
+                        },
+                        JoinType {
+                            graph: Graph(
+                                "PRODUCTS",
+                            ),
+                            key: None,
+                            extension: true,
+                            resolvable: true,
+                            is_interface_object: true,
+                        },
+                        JoinType {
+                            graph: Graph(
+                                "USERS",
+                            ),
+                            key: None,
+                            extension: true,
+                            resolvable: true,
+                            is_interface_object: true,
+                        },
+                    ],
+                    join_implements: [],
+                },
+            ),
+            {
+                "me": Field(
+                    (
+                        FieldDefinition {
+                            name: "me",
+                            args: [],
+                            of_type: Named {
+                                name: "User",
+                                required: false,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("AUTH"),
+                                        "type": String("User!"),
+                                    },
+                                },
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("ORDERS"),
+                                        "type": String("User"),
+                                    },
+                                },
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("USERS"),
+                                        "type": String("User"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "AUTH",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: Some(
+                                        "User!",
+                                    ),
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "ORDERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: Some(
+                                        "User",
+                                    ),
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "USERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: Some(
+                                        "User",
+                                    ),
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        {},
+                    ),
+                ),
+                "orders": Field(
+                    (
+                        FieldDefinition {
+                            name: "orders",
+                            args: [
+                                InputFieldDefinition {
+                                    name: "userId",
+                                    of_type: Named {
+                                        name: "ID",
+                                        required: true,
+                                    },
+                                    default_value: None,
+                                    description: None,
+                                    join_fields: [],
+                                },
+                            ],
+                            of_type: List {
+                                of_type: Named {
+                                    name: "Order",
+                                    required: true,
+                                },
+                                non_null: true,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("ORDERS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "ORDERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        {
+                            "userId": InputFieldDefinition {
+                                name: "userId",
+                                of_type: Named {
+                                    name: "ID",
+                                    required: true,
+                                },
+                                default_value: None,
+                                description: None,
+                                join_fields: [],
+                            },
+                        },
+                    ),
+                ),
+                "product": Field(
+                    (
+                        FieldDefinition {
+                            name: "product",
+                            args: [
+                                InputFieldDefinition {
+                                    name: "id",
+                                    of_type: Named {
+                                        name: "ID",
+                                        required: true,
+                                    },
+                                    default_value: None,
+                                    description: None,
+                                    join_fields: [],
+                                },
+                            ],
+                            of_type: Named {
+                                name: "Product",
+                                required: false,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("ORDERS"),
+                                    },
+                                },
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("PRODUCTS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "ORDERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "PRODUCTS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        {
+                            "id": InputFieldDefinition {
+                                name: "id",
+                                of_type: Named {
+                                    name: "ID",
+                                    required: true,
+                                },
+                                default_value: None,
+                                description: None,
+                                join_fields: [],
+                            },
+                        },
+                    ),
+                ),
+                "products": Field(
+                    (
+                        FieldDefinition {
+                            name: "products",
+                            args: [],
+                            of_type: List {
+                                of_type: Named {
+                                    name: "Product",
+                                    required: true,
+                                },
+                                non_null: true,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("PRODUCTS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "PRODUCTS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        {},
+                    ),
+                ),
+                "users": Field(
+                    (
+                        FieldDefinition {
+                            name: "users",
+                            args: [],
+                            of_type: List {
+                                of_type: Named {
+                                    name: "User",
+                                    required: true,
+                                },
+                                non_null: true,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("USERS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "USERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        {},
+                    ),
+                ),
+                "user": Field(
+                    (
+                        FieldDefinition {
+                            name: "user",
+                            args: [
+                                InputFieldDefinition {
+                                    name: "id",
+                                    of_type: Named {
+                                        name: "ID",
+                                        required: true,
+                                    },
+                                    default_value: None,
+                                    description: None,
+                                    join_fields: [],
+                                },
+                            ],
+                            of_type: Named {
+                                name: "User",
+                                required: false,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("USERS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "USERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        {
+                            "id": InputFieldDefinition {
+                                name: "id",
+                                of_type: Named {
+                                    name: "ID",
+                                    required: true,
+                                },
+                                default_value: None,
+                                description: None,
+                                join_fields: [],
+                            },
+                        },
+                    ),
+                ),
+            },
+        ),
+        "User": (
+            Object(
+                ObjectTypeDefinition {
+                    name: "User",
+                    fields: [
+                        FieldDefinition {
+                            name: "id",
+                            args: [],
+                            of_type: Named {
+                                name: "ID",
+                                required: true,
+                            },
+                            directives: [],
+                            description: None,
+                            join_fields: [],
+                        },
+                        FieldDefinition {
+                            name: "role",
+                            args: [],
+                            of_type: Named {
+                                name: "String",
+                                required: false,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("AUTH"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "AUTH",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        FieldDefinition {
+                            name: "photo",
+                            args: [],
+                            of_type: Named {
+                                name: "Photo",
+                                required: false,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("AUTH"),
+                                    },
+                                },
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("USERS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "AUTH",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "USERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        FieldDefinition {
+                            name: "name",
+                            args: [],
+                            of_type: Named {
+                                name: "String",
+                                required: false,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("AUTH"),
+                                        "type": String("String"),
+                                    },
+                                },
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("USERS"),
+                                        "type": String("String!"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "AUTH",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: Some(
+                                        "String",
+                                    ),
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "USERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: Some(
+                                        "String!",
+                                    ),
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        FieldDefinition {
+                            name: "orders",
+                            args: [],
+                            of_type: List {
+                                of_type: Named {
+                                    name: "Order",
+                                    required: true,
+                                },
+                                non_null: true,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("ORDERS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "ORDERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        FieldDefinition {
+                            name: "email",
+                            args: [],
+                            of_type: Named {
+                                name: "String",
+                                required: true,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("USERS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "USERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                    ],
+                    description: None,
+                    implements: {},
+                    join_types: [
+                        JoinType {
+                            graph: Graph(
+                                "AUTH",
+                            ),
+                            key: Some(
+                                "id",
+                            ),
+                            extension: true,
+                            resolvable: true,
+                            is_interface_object: true,
+                        },
+                        JoinType {
+                            graph: Graph(
+                                "ORDERS",
+                            ),
+                            key: Some(
+                                "id",
+                            ),
+                            extension: true,
+                            resolvable: true,
+                            is_interface_object: true,
+                        },
+                        JoinType {
+                            graph: Graph(
+                                "USERS",
+                            ),
+                            key: None,
+                            extension: true,
+                            resolvable: true,
+                            is_interface_object: true,
+                        },
+                    ],
+                    join_implements: [],
+                },
+            ),
+            {
+                "id": Field(
+                    (
+                        FieldDefinition {
+                            name: "id",
+                            args: [],
+                            of_type: Named {
+                                name: "ID",
+                                required: true,
+                            },
+                            directives: [],
+                            description: None,
+                            join_fields: [],
+                        },
+                        {},
+                    ),
+                ),
+                "role": Field(
+                    (
+                        FieldDefinition {
+                            name: "role",
+                            args: [],
+                            of_type: Named {
+                                name: "String",
+                                required: false,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("AUTH"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "AUTH",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        {},
+                    ),
+                ),
+                "photo": Field(
+                    (
+                        FieldDefinition {
+                            name: "photo",
+                            args: [],
+                            of_type: Named {
+                                name: "Photo",
+                                required: false,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("AUTH"),
+                                    },
+                                },
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("USERS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "AUTH",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "USERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        {},
+                    ),
+                ),
+                "name": Field(
+                    (
+                        FieldDefinition {
+                            name: "name",
+                            args: [],
+                            of_type: Named {
+                                name: "String",
+                                required: false,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("AUTH"),
+                                        "type": String("String"),
+                                    },
+                                },
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("USERS"),
+                                        "type": String("String!"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "AUTH",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: Some(
+                                        "String",
+                                    ),
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "USERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: Some(
+                                        "String!",
+                                    ),
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        {},
+                    ),
+                ),
+                "orders": Field(
+                    (
+                        FieldDefinition {
+                            name: "orders",
+                            args: [],
+                            of_type: List {
+                                of_type: Named {
+                                    name: "Order",
+                                    required: true,
+                                },
+                                non_null: true,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("ORDERS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "ORDERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        {},
+                    ),
+                ),
+                "email": Field(
+                    (
+                        FieldDefinition {
+                            name: "email",
+                            args: [],
+                            of_type: Named {
+                                name: "String",
+                                required: true,
+                            },
+                            directives: [
+                                Directive {
+                                    name: "join__field",
+                                    arguments: Object {
+                                        "graph": String("USERS"),
+                                    },
+                                },
+                            ],
+                            description: None,
+                            join_fields: [
+                                JoinField {
+                                    graph: Some(
+                                        Graph(
+                                            "USERS",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                        },
+                        {},
+                    ),
+                ),
+            },
+        ),
+        "join__FieldSet": (
+            Scalar(
+                ScalarTypeDefinition {
+                    name: "join__FieldSet",
+                    directives: [],
+                    description: None,
+                    join_types: [],
+                },
+            ),
+            {},
+        ),
+        "join__Graph": (
+            Enum(
+                EnumTypeDefinition {
+                    name: "join__Graph",
+                    directives: [],
+                    description: None,
+                    enum_values: [
+                        EnumValueDefinition {
+                            description: None,
+                            name: "AUTH",
+                            directives: [
+                                Directive {
+                                    name: "join__graph",
+                                    arguments: Object {
+                                        "name": String("auth"),
+                                        "url": String("http://localhost:4000/auth"),
+                                    },
+                                },
+                            ],
+                            join_enums: [],
+                        },
+                        EnumValueDefinition {
+                            description: None,
+                            name: "ORDERS",
+                            directives: [
+                                Directive {
+                                    name: "join__graph",
+                                    arguments: Object {
+                                        "name": String("orders"),
+                                        "url": String("http://localhost:4000/orders"),
+                                    },
+                                },
+                            ],
+                            join_enums: [],
+                        },
+                        EnumValueDefinition {
+                            description: None,
+                            name: "PRODUCTS",
+                            directives: [
+                                Directive {
+                                    name: "join__graph",
+                                    arguments: Object {
+                                        "name": String("products"),
+                                        "url": String("http://localhost:4000/products"),
+                                    },
+                                },
+                            ],
+                            join_enums: [],
+                        },
+                        EnumValueDefinition {
+                            description: None,
+                            name: "USERS",
+                            directives: [
+                                Directive {
+                                    name: "join__graph",
+                                    arguments: Object {
+                                        "name": String("users"),
+                                        "url": String("http://localhost:4000/users"),
+                                    },
+                                },
+                            ],
+                            join_enums: [],
+                        },
+                    ],
+                    join_types: [],
+                },
+            ),
+            {},
+        ),
+        "link__Import": (
+            Scalar(
+                ScalarTypeDefinition {
+                    name: "link__Import",
+                    directives: [],
+                    description: None,
+                    join_types: [],
+                },
+            ),
+            {},
+        ),
+        "link__Purpose": (
+            Enum(
+                EnumTypeDefinition {
+                    name: "link__Purpose",
+                    directives: [],
+                    description: None,
+                    enum_values: [
+                        EnumValueDefinition {
+                            description: Some(
+                                "`SECURITY` features provide metadata necessary to securely resolve fields.",
+                            ),
+                            name: "SECURITY",
+                            directives: [],
+                            join_enums: [],
+                        },
+                        EnumValueDefinition {
+                            description: Some(
+                                "`EXECUTION` features provide metadata necessary for operation execution.",
+                            ),
+                            name: "EXECUTION",
+                            directives: [],
+                            join_enums: [],
+                        },
+                    ],
+                    join_types: [],
+                },
+            ),
+            {},
+        ),
+    },
+    schema: SchemaDefinition {
+        query: Some(
+            "Query",
+        ),
+        mutation: None,
+        subscription: None,
+        directives: [
+            Directive {
+                name: "link",
+                arguments: Object {
+                    "url": String("https://specs.apollo.dev/link/v1.0"),
+                },
+            },
+            Directive {
+                name: "link",
+                arguments: Object {
+                    "for": String("EXECUTION"),
+                    "url": String("https://specs.apollo.dev/join/v0.3"),
+                },
+            },
+        ],
+    },
+}

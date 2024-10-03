@@ -1,0 +1,20 @@
+[package]
+name = "query_plan_alt"
+version = "0.1.0"
+edition = "2021"
+
+
+[dependencies]
+blueprint = { path = "../blueprint" }
+async-graphql-parser = "7.0.9"
+async-graphql-value = "7.0.9"
+async-graphql = "7.0.9"
+serde.workspace = true
+serde_json.workspace = true
+derive_setters.workspace = true
+valid = { path = "../valid" }
+derive_more.workspace = true
+
+[dev-dependencies]
+resource.workspace = true
+insta.workspace = true

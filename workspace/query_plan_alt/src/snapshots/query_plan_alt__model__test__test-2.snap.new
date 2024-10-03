@@ -1,0 +1,257 @@
+---
+source: workspace/query_plan_alt/src/model.rs
+assertion_line: 538
+expression: actual
+---
+Parallel(
+    [
+        Fetch(
+            Fetch {
+                arguments: [],
+                directives: [],
+                selection_set: SelectionSet(
+                    [
+                        Field {
+                            name: "name",
+                            alias: None,
+                            selections: SelectionSet(
+                                [],
+                            ),
+                            arguments: [],
+                            directives: [],
+                            is_hidden: false,
+                            graph: [],
+                            join_field: [],
+                            field_type: None,
+                            parent_type: None,
+                        },
+                    ],
+                ),
+                representations: None,
+                type_name: TypeName(
+                    "String",
+                ),
+                service: None,
+            },
+        ),
+        Fetch(
+            Fetch {
+                arguments: [],
+                directives: [],
+                selection_set: SelectionSet(
+                    [
+                        Field {
+                            name: "id",
+                            alias: None,
+                            selections: SelectionSet(
+                                [],
+                            ),
+                            arguments: [],
+                            directives: [],
+                            is_hidden: false,
+                            graph: [],
+                            join_field: [],
+                            field_type: None,
+                            parent_type: None,
+                        },
+                    ],
+                ),
+                representations: None,
+                type_name: TypeName(
+                    "ID",
+                ),
+                service: None,
+            },
+        ),
+        Fetch(
+            Fetch {
+                arguments: [],
+                directives: [],
+                selection_set: SelectionSet(
+                    [
+                        Field {
+                            name: "quantity",
+                            alias: None,
+                            selections: SelectionSet(
+                                [],
+                            ),
+                            arguments: [],
+                            directives: [],
+                            is_hidden: false,
+                            graph: [],
+                            join_field: [],
+                            field_type: None,
+                            parent_type: None,
+                        },
+                    ],
+                ),
+                representations: None,
+                type_name: TypeName(
+                    "Int",
+                ),
+                service: Some(
+                    Graph(
+                        "ORDERS",
+                    ),
+                ),
+            },
+        ),
+        Fetch(
+            Fetch {
+                arguments: [],
+                directives: [],
+                selection_set: SelectionSet(
+                    [
+                        Field {
+                            name: "id",
+                            alias: None,
+                            selections: SelectionSet(
+                                [],
+                            ),
+                            arguments: [],
+                            directives: [],
+                            is_hidden: false,
+                            graph: [],
+                            join_field: [],
+                            field_type: None,
+                            parent_type: None,
+                        },
+                    ],
+                ),
+                representations: None,
+                type_name: TypeName(
+                    "ID",
+                ),
+                service: Some(
+                    Graph(
+                        "ORDERS",
+                    ),
+                ),
+            },
+        ),
+        Fetch(
+            Fetch {
+                arguments: [],
+                directives: [],
+                selection_set: SelectionSet(
+                    [
+                        Field {
+                            name: "price",
+                            alias: None,
+                            selections: SelectionSet(
+                                [],
+                            ),
+                            arguments: [],
+                            directives: [],
+                            is_hidden: false,
+                            graph: [],
+                            join_field: [],
+                            field_type: None,
+                            parent_type: None,
+                        },
+                    ],
+                ),
+                representations: None,
+                type_name: TypeName(
+                    "Float",
+                ),
+                service: Some(
+                    Graph(
+                        "PRODUCTS",
+                    ),
+                ),
+            },
+        ),
+        Fetch(
+            Fetch {
+                arguments: [],
+                directives: [],
+                selection_set: SelectionSet(
+                    [
+                        Field {
+                            name: "name",
+                            alias: None,
+                            selections: SelectionSet(
+                                [],
+                            ),
+                            arguments: [],
+                            directives: [],
+                            is_hidden: false,
+                            graph: [],
+                            join_field: [],
+                            field_type: None,
+                            parent_type: None,
+                        },
+                    ],
+                ),
+                representations: None,
+                type_name: TypeName(
+                    "String",
+                ),
+                service: Some(
+                    Graph(
+                        "PRODUCTS",
+                    ),
+                ),
+            },
+        ),
+        Fetch(
+            Fetch {
+                arguments: [],
+                directives: [],
+                selection_set: SelectionSet(
+                    [
+                        Field {
+                            name: "id",
+                            alias: None,
+                            selections: SelectionSet(
+                                [],
+                            ),
+                            arguments: [],
+                            directives: [],
+                            is_hidden: false,
+                            graph: [],
+                            join_field: [],
+                            field_type: None,
+                            parent_type: None,
+                        },
+                    ],
+                ),
+                representations: None,
+                type_name: TypeName(
+                    "ID",
+                ),
+                service: None,
+            },
+        ),
+        Fetch(
+            Fetch {
+                arguments: [],
+                directives: [],
+                selection_set: SelectionSet(
+                    [
+                        Field {
+                            name: "url",
+                            alias: None,
+                            selections: SelectionSet(
+                                [],
+                            ),
+                            arguments: [],
+                            directives: [],
+                            is_hidden: false,
+                            graph: [],
+                            join_field: [],
+                            field_type: None,
+                            parent_type: None,
+                        },
+                    ],
+                ),
+                representations: None,
+                type_name: TypeName(
+                    "String",
+                ),
+                service: None,
+            },
+        ),
+    ],
+)

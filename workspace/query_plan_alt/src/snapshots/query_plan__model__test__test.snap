@@ -1,0 +1,112 @@
+---
+source: workspace/query_plan/src/model.rs
+expression: actual
+---
+Parallel(
+    [
+        Fetch(
+            Fetch {
+                name: None,
+                arguments: [],
+                variables: [],
+                directives: [],
+                selection_set: SelectionSet(
+                    [
+                        Field {
+                            name: "topProducts",
+                            alias: None,
+                            selections: SelectionSet(
+                                [
+                                    Field {
+                                        name: "name",
+                                        alias: None,
+                                        selections: SelectionSet(
+                                            [],
+                                        ),
+                                        arguments: [],
+                                        directives: [],
+                                        is_hidden: false,
+                                        graph: [],
+                                        join_field: [],
+                                        field_type: None,
+                                        parent_type: None,
+                                    },
+                                    Field {
+                                        name: "reviews",
+                                        alias: None,
+                                        selections: SelectionSet(
+                                            [
+                                                Field {
+                                                    name: "score",
+                                                    alias: None,
+                                                    selections: SelectionSet(
+                                                        [],
+                                                    ),
+                                                    arguments: [],
+                                                    directives: [],
+                                                    is_hidden: false,
+                                                    graph: [],
+                                                    join_field: [],
+                                                    field_type: None,
+                                                    parent_type: None,
+                                                },
+                                            ],
+                                        ),
+                                        arguments: [],
+                                        directives: [],
+                                        is_hidden: false,
+                                        graph: [],
+                                        join_field: [],
+                                        field_type: None,
+                                        parent_type: None,
+                                    },
+                                    Field {
+                                        name: "reviews",
+                                        alias: None,
+                                        selections: SelectionSet(
+                                            [
+                                                Field {
+                                                    name: "description",
+                                                    alias: None,
+                                                    selections: SelectionSet(
+                                                        [],
+                                                    ),
+                                                    arguments: [],
+                                                    directives: [],
+                                                    is_hidden: false,
+                                                    graph: [],
+                                                    join_field: [],
+                                                    field_type: None,
+                                                    parent_type: None,
+                                                },
+                                            ],
+                                        ),
+                                        arguments: [],
+                                        directives: [],
+                                        is_hidden: false,
+                                        graph: [],
+                                        join_field: [],
+                                        field_type: None,
+                                        parent_type: None,
+                                    },
+                                ],
+                            ),
+                            arguments: [],
+                            directives: [],
+                            is_hidden: false,
+                            graph: [],
+                            join_field: [],
+                            field_type: None,
+                            parent_type: None,
+                        },
+                    ],
+                ),
+                representations: None,
+                type_name: TypeName(
+                    "query",
+                ),
+                service: None,
+            },
+        ),
+    ],
+)

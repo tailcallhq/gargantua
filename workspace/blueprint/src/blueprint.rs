@@ -62,7 +62,7 @@ pub struct InterfaceTypeDefinition {
     pub name: String,
     pub fields: Vec<FieldDefinition>,
     pub description: Option<String>,
-    pub join_types: Vec<JoinType>,
+    pub join_types: Vec<JoinTypeParsed>,
     pub join_implements: Vec<JoinImplements>,
 }
 
@@ -72,7 +72,7 @@ pub struct ObjectTypeDefinition {
     pub fields: Vec<FieldDefinition>,
     pub description: Option<String>,
     pub implements: BTreeSet<String>,
-    pub join_types: Vec<JoinType>,
+    pub join_types: Vec<JoinTypeParsed>,
     pub join_implements: Vec<JoinImplements>,
 }
 
@@ -81,7 +81,7 @@ pub struct InputObjectTypeDefinition {
     pub name: String,
     pub fields: Vec<InputFieldDefinition>,
     pub description: Option<String>,
-    pub join_types: Vec<JoinType>,
+    pub join_types: Vec<JoinTypeParsed>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -90,7 +90,7 @@ pub struct EnumTypeDefinition {
     pub directives: Vec<Directive>,
     pub description: Option<String>,
     pub enum_values: Vec<EnumValueDefinition>,
-    pub join_types: Vec<JoinType>,
+    pub join_types: Vec<JoinTypeParsed>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -115,7 +115,7 @@ pub struct InputFieldDefinition {
     pub of_type: Type,
     pub default_value: Option<Value>,
     pub description: Option<String>,
-    pub join_fields: Vec<JoinField>,
+    pub join_fields: Vec<JoinFieldParsed>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -125,7 +125,7 @@ pub struct FieldDefinition {
     pub of_type: Type,
     pub directives: Vec<Directive>,
     pub description: Option<String>,
-    pub join_fields: Vec<JoinField>,
+    pub join_fields: Vec<JoinFieldParsed>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -148,7 +148,7 @@ pub struct ScalarTypeDefinition {
     pub name: String,
     pub directives: Vec<Directive>,
     pub description: Option<String>,
-    pub join_types: Vec<JoinType>,
+    pub join_types: Vec<JoinTypeParsed>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -157,7 +157,7 @@ pub struct UnionTypeDefinition {
     pub directives: Vec<Directive>,
     pub description: Option<String>,
     pub types: BTreeSet<String>,
-    pub join_types: Vec<JoinType>,
+    pub join_types: Vec<JoinTypeParsed>,
     pub join_unions: Vec<JoinUnion>,
 }
 
@@ -171,6 +171,39 @@ pub struct JoinType {
     pub resolvable: bool,
     #[serde(default = "default_false")]
     pub is_interface_object: bool,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct JoinTypeParsed {
+    pub graph: Graph,
+    pub key: Option<SelectionSet>,
+    #[serde(default = "default_false")]
+    pub extension: bool,
+    #[serde(default = "default_true")]
+    pub resolvable: bool,
+    #[serde(default = "default_false")]
+    pub is_interface_object: bool,
+}
+
+impl From<JoinType> for JoinTypeParsed {
+    fn from(value: JoinType) -> Self {
+        Self {
+            graph: value.graph,
+            key: parse_query_string(value.key),
+            extension: value.extension,
+            resolvable: value.resolvable,
+            is_interface_object: value.is_interface_object,
+        }
+    }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct SelectionSet(pub Vec<Field>);
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Field {
+    pub name: String,
+    pub selections: SelectionSet,
 }
 
 fn default_true() -> bool {
@@ -194,6 +227,67 @@ pub struct JoinField {
     pub external: Option<bool>,
     pub r#override: Option<String>,
     pub used_overridden: Option<bool>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct JoinFieldParsed {
+    pub graph: Option<Graph>,
+    pub requires: Option<SelectionSet>,
+    pub provides: Option<SelectionSet>,
+    pub r#type: Option<String>,
+    pub external: Option<bool>,
+    pub r#override: Option<String>,
+    pub used_overridden: Option<bool>,
+}
+
+impl From<JoinField> for JoinFieldParsed {
+    fn from(value: JoinField) -> Self {
+        Self {
+            graph: value.graph,
+            requires: parse_query_string(value.requires),
+            provides: parse_query_string(value.provides),
+            r#type: value.r#type,
+            external: value.external,
+            r#override: value.r#override,
+            used_overridden: value.used_overridden,
+        }
+    }
+}
+
+fn parse_query_string(query: Option<String>) -> Option<SelectionSet> {
+    fn recursive_extract_data(
+        selection_set: async_graphql_parser::Positioned<async_graphql_parser::types::SelectionSet>,
+    ) -> SelectionSet {
+        let fields = selection_set
+            .node
+            .items
+            .into_iter()
+            .map(|field| match field.node {
+                async_graphql_parser::types::Selection::Field(field) => {
+                    let selections = recursive_extract_data(field.node.selection_set);
+                    Field { name: field.node.name.node.to_string(), selections }
+                }
+                _ => panic!("cannot do that"),
+            })
+            .collect::<Vec<_>>();
+        SelectionSet(fields)
+    }
+
+    query.map(|value| {
+        let document = async_graphql_parser::parse_query(format!("{{ {} }}", value)).unwrap();
+        let selections = recursive_extract_data(
+            document
+                .operations
+                .iter()
+                .next()
+                .unwrap()
+                .1
+                .node
+                .selection_set
+                .clone(),
+        );
+        selections
+    })
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

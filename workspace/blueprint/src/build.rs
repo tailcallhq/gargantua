@@ -6,8 +6,8 @@ use serde::de::DeserializeOwned;
 
 use crate::{
     Blueprint, Definition, Directive, DirectiveDefinition, EnumValueDefinition, FieldDefinition,
-    InputFieldDefinition, JoinEnum, JoinField, JoinGraph, JoinImplements, JoinType, JoinUnion,
-    SchemaDefinition, Type,
+    InputFieldDefinition, JoinEnum, JoinField, JoinFieldParsed, JoinGraph, JoinImplements,
+    JoinType, JoinTypeParsed, JoinUnion, SchemaDefinition, Type,
 };
 
 // Reading a super-graph configuration is infallible
@@ -147,7 +147,11 @@ fn parse_type(type_node: async_graphql_parser::types::TypeDefinition) -> Definit
 
     match type_node.kind {
         async_graphql_parser::types::TypeKind::Scalar => {
-            let join_types: Vec<JoinType> = find_directive(&directives, "join__type");
+            let join_types: Vec<JoinTypeParsed> =
+                find_directive::<JoinType>(&directives, "join__type")
+                    .into_iter()
+                    .map(|jt| JoinTypeParsed::from(jt))
+                    .collect();
             Definition::Scalar(crate::ScalarTypeDefinition {
                 name,
                 directives,
@@ -168,7 +172,11 @@ fn parse_type(type_node: async_graphql_parser::types::TypeDefinition) -> Definit
                 .map(|name| name.to_string())
                 .collect::<BTreeSet<String>>();
 
-            let join_types: Vec<JoinType> = find_directive(&directives, "join__type");
+            let join_types: Vec<JoinTypeParsed> =
+                find_directive::<JoinType>(&directives, "join__type")
+                    .into_iter()
+                    .map(|jt| JoinTypeParsed::from(jt))
+                    .collect();
             let join_implements: Vec<JoinImplements> =
                 find_directive(&directives, "join__implements");
 
@@ -188,7 +196,11 @@ fn parse_type(type_node: async_graphql_parser::types::TypeDefinition) -> Definit
                 .map(|Positioned { pos: _, node: field_node }| parse_field(field_node))
                 .collect();
 
-            let join_types: Vec<JoinType> = find_directive(&directives, "join__type");
+            let join_types: Vec<JoinTypeParsed> =
+                find_directive::<JoinType>(&directives, "join__type")
+                    .into_iter()
+                    .map(|jt| JoinTypeParsed::from(jt))
+                    .collect();
             let join_implements: Vec<JoinImplements> =
                 find_directive(&directives, "join__implements");
             Definition::Interface(crate::InterfaceTypeDefinition {
@@ -206,7 +218,11 @@ fn parse_type(type_node: async_graphql_parser::types::TypeDefinition) -> Definit
                 .map(|type_name| type_name.into_inner().to_string())
                 .collect();
 
-            let join_types: Vec<JoinType> = find_directive(&directives, "join__type");
+            let join_types: Vec<JoinTypeParsed> =
+                find_directive::<JoinType>(&directives, "join__type")
+                    .into_iter()
+                    .map(|jt| JoinTypeParsed::from(jt))
+                    .collect();
             let join_unions: Vec<JoinUnion> = find_directive(&directives, "join__unionMember");
 
             Definition::Union(crate::UnionTypeDefinition {
@@ -225,7 +241,11 @@ fn parse_type(type_node: async_graphql_parser::types::TypeDefinition) -> Definit
                 .map(|Positioned { pos: _, node: enum_node }| parse_enum(enum_node))
                 .collect();
 
-            let join_types: Vec<JoinType> = find_directive(&directives, "join__type");
+            let join_types: Vec<JoinTypeParsed> =
+                find_directive::<JoinType>(&directives, "join__type")
+                    .into_iter()
+                    .map(|jt| JoinTypeParsed::from(jt))
+                    .collect();
             Definition::Enum(crate::EnumTypeDefinition {
                 name,
                 directives,
@@ -243,7 +263,11 @@ fn parse_type(type_node: async_graphql_parser::types::TypeDefinition) -> Definit
                 })
                 .collect();
 
-            let join_types: Vec<JoinType> = find_directive(&directives, "join__type");
+            let join_types: Vec<JoinTypeParsed> =
+                find_directive::<JoinType>(&directives, "join__type")
+                    .into_iter()
+                    .map(|jt| JoinTypeParsed::from(jt))
+                    .collect();
             Definition::InputObject(crate::InputObjectTypeDefinition {
                 name,
                 fields,
@@ -284,7 +308,10 @@ fn parse_field(field_node: async_graphql_parser::types::FieldDefinition) -> Fiel
         .map(|Positioned { pos: _, node: directive_node }| parse_directive(directive_node))
         .collect();
 
-    let join_fields: Vec<JoinField> = find_directive(&directives, "join__field");
+    let join_fields: Vec<JoinFieldParsed> = find_directive::<JoinField>(&directives, "join__field")
+        .into_iter()
+        .map(|jf| JoinFieldParsed::from(jf))
+        .collect();
 
     FieldDefinition { name, args, of_type, directives, description, join_fields }
 }
@@ -306,7 +333,10 @@ fn parse_input_field(
         .map(|Positioned { pos: _, node: directive_node }| parse_directive(directive_node))
         .collect();
 
-    let join_fields: Vec<JoinField> = find_directive(&directives, "join__field");
+    let join_fields: Vec<JoinFieldParsed> = find_directive::<JoinField>(&directives, "join__field")
+        .into_iter()
+        .map(|jf| JoinFieldParsed::from(jf))
+        .collect();
 
     InputFieldDefinition { name, of_type, default_value, description, join_fields }
 }

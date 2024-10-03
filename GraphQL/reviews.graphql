@@ -1,0 +1,53 @@
+type Picture @shareable {
+  url: String!
+  width: Int!
+  height: Int!
+  altText: Int! @inaccessible
+}
+
+type Product @key(fields: "upc") {
+  upc: ID!
+  price: Int! @external
+  reviews: [Review!]!
+}
+
+type Review {
+  id: ID!
+  body: String!
+  pictures: [Picture!]!
+  product: String! @provides(fields: "price")
+  author: User!
+}
+
+enum Trustworthiness {
+  ReallyTrusted
+  KindaTrusted
+  NotTrusted
+}
+
+type User @key(fields: "id") {
+  id: ID!
+  reviewCount: Int! @override(from: "accounts")
+  joinedTimestamp: Int! @external
+  reviews: [Review!]!
+  trustworthiness: [Review!]! @requires(fields: "joinedTimestamp")
+}
+
+directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+extend schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.3"
+    import: [
+      "@key"
+      "@tag"
+      "@shareable"
+      "@inaccessible"
+      "@override"
+      "@external"
+      "@provides"
+      "@requires"
+      "@composeDirective"
+      "@interfaceObject"
+    ]
+  )

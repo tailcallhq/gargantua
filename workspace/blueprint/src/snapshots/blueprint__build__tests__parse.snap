@@ -1,5 +1,5 @@
 ---
-source: blueprint/src/lib.rs
+source: workspace/blueprint/src/build.rs
 expression: blueprint
 ---
 {

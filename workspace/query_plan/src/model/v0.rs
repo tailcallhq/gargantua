@@ -164,6 +164,13 @@ impl<A> Field<A> {
             field_type: None,
         }
     }
+    pub fn set_join_fields(self, vec: Vec<JoinFieldParsed>) -> Self {
+        Self {
+            join_field: vec.clone(),
+            graph: vec.into_iter().map(|jf| jf.graph.unwrap()).collect(),
+            ..self
+        }
+    }
 }
 
 #[derive(Debug, Clone, Setters)]

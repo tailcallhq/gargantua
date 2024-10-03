@@ -218,7 +218,7 @@ pub struct JoinEnum {
     pub graph: Graph,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, Default)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JoinField {
     pub graph: Option<Graph>,
     pub requires: Option<String>,
@@ -229,13 +229,7 @@ pub struct JoinField {
     pub used_overridden: Option<bool>,
 }
 
-impl JoinField {
-    pub fn new(g: Graph) -> Self {
-        Self { graph: Some(g), ..Default::default() }
-    }
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Default)]
 pub struct JoinFieldParsed {
     pub graph: Option<Graph>,
     pub requires: Option<SelectionSet>,
@@ -244,6 +238,17 @@ pub struct JoinFieldParsed {
     pub external: Option<bool>,
     pub r#override: Option<String>,
     pub used_overridden: Option<bool>,
+}
+
+impl JoinFieldParsed {
+    pub fn new(g: Graph, provides: Option<String>, requires: Option<String>) -> Self {
+        Self {
+            graph: Some(g),
+            provides: parse_query_string(provides),
+            requires: parse_query_string(requires),
+            ..Default::default()
+        }
+    }
 }
 
 impl From<JoinField> for JoinFieldParsed {

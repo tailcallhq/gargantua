@@ -69,7 +69,11 @@ pub fn alogrithm<T: Debug + Clone + Default>(field: &Field<T>) -> &Field<T> {
             required_maps
         );
 
-        let _ = merge(field, local_paths, &required_maps);
+        let _ = merge(
+            field,
+            &local_paths.into_iter().cloned().collect(),
+            &required_maps,
+        );
 
         // probably federated calls.
     } else {
@@ -85,7 +89,7 @@ pub fn alogrithm<T: Debug + Clone + Default>(field: &Field<T>) -> &Field<T> {
 
 fn merge<T: Debug + Clone + Default>(
     respect_to: &Field<T>,
-    needs_merging: Vec<&Field<T>>,
+    needs_merging: &Vec<Field<T>>,
     allowed_graphs: &HashSet<String>,
 ) -> () {
     let mut belongs_to = vec![]; // this needs to packed as one.
@@ -114,7 +118,6 @@ fn merge<T: Debug + Clone + Default>(
         }
     }
 
-
     let mut groups = vec![];
 
     for single_p in p.iter() {
@@ -124,32 +127,35 @@ fn merge<T: Debug + Clone + Default>(
 
 #[cfg(test)]
 mod test {
-    use blueprint::{Graph, JoinField};
+    use blueprint::{Graph, JoinFieldParsed};
 
     use super::*;
-    use crate::{Field, SelectionSet};
+    use crate::{Argument, Directive, Field, SelectionSet};
 
     fn build_location_field() -> Field<async_graphql_value::Value> {
         Field {
             name: "location".to_string(),
             alias: None,
             selections: SelectionSet::new(vec![
-                Field::new("n1".to_string(), SelectionSet::new(vec![]))
-                    .join_field(vec![JoinField::new(Graph::new("Location"))]),
-                Field::new("n2".to_string(), SelectionSet::new(vec![]))
-                    .join_field(vec![JoinField::new(Graph::new("Reviews"))]),
-                Field::new("n3".to_string(), SelectionSet::new(vec![]))
-                    .join_field(vec![JoinField::new(Graph::new("Location"))]),
+                Field::new("n1".to_string(), SelectionSet::new(vec![])).join_field(vec![
+                    JoinFieldParsed::new(Graph::new("Location"), None, None),
+                ]),
+                Field::new("n2".to_string(), SelectionSet::new(vec![])).join_field(vec![
+                    JoinFieldParsed::new(Graph::new("Reviews"), None, None),
+                ]),
+                Field::new("n3".to_string(), SelectionSet::new(vec![])).join_field(vec![
+                    JoinFieldParsed::new(Graph::new("Location"), None, None),
+                ]),
                 Field::new("n4".to_string(), SelectionSet::new(vec![])).join_field(vec![
-                    JoinField::new(Graph::new("Location")),
-                    JoinField::new(Graph::new("Auth")),
+                    JoinFieldParsed::new(Graph::new("Location"), None, None),
+                    JoinFieldParsed::new(Graph::new("Auth"), None, None),
                 ]),
             ]),
             arguments: Vec::new(),
             directives: Vec::new(),
             is_hidden: false,
             graph: vec![Graph::new("Location")],
-            join_field: vec![JoinField::new(Graph::new("Location"))],
+            join_field: vec![JoinFieldParsed::new(Graph::new("Location"), None, None)],
             field_type: None,
             parent_type: None,
         }
@@ -158,6 +164,93 @@ mod test {
     #[test]
     fn test() {
         let field = build_location_field();
+        let _ = alogrithm(&field);
+    }
+
+    #[test]
+    fn test_complex() {
+        let field: Field<async_graphql_value::Value> = Field {
+            name: "fizz".to_string(),
+            alias: Some("buzz".to_string()),
+            selections: SelectionSet::new(vec![
+                Field::new("id".to_string(), SelectionSet::new(vec![])),
+                Field::new(
+                    "field_1".to_string(),
+                    SelectionSet::new(vec![
+                        Field::new("field_1_1".to_string(), SelectionSet::new(vec![])),
+                        Field::new("field_1_2".to_string(), SelectionSet::new(vec![])).join_field(
+                            vec![
+                                JoinFieldParsed::new(Graph::new("T2"), None, None),
+                                JoinFieldParsed::new(Graph::new("T3"), None, None),
+                            ],
+                        ),
+                    ]),
+                ),
+                Field::new(
+                    "field_2".to_string(),
+                    SelectionSet::new(vec![
+                        Field::new("field_2_1".to_string(), SelectionSet::new(vec![])),
+                        Field::new("field_2_2".to_string(), SelectionSet::new(vec![]))
+                            .join_field(vec![JoinFieldParsed::new(Graph::new("T2"), None, None)]),
+                        Field::new(
+                            "field_2_3".to_string(),
+                            SelectionSet::new(vec![Field::new(
+                                "field_2_1".to_string(),
+                                SelectionSet::new(vec![]),
+                            )]),
+                        )
+                        .join_field(vec![JoinFieldParsed::new(
+                            Graph::new("T1"),
+                            None,
+                            None,
+                        )]),
+                    ]),
+                )
+                .join_field(vec![
+                    JoinFieldParsed::new(Graph::new("T1"), None, None),
+                    JoinFieldParsed::new(Graph::new("T2"), None, None),
+                ]),
+                Field::new(
+                    "field_3".to_string(),
+                    SelectionSet::new(vec![Field::new(
+                        "field_3_1".to_string(),
+                        SelectionSet::new(vec![]),
+                    )
+                    .join_field(vec![JoinFieldParsed::new(Graph::new("T4"), None, None)])]),
+                )
+                .join_field(vec![
+                    JoinFieldParsed::new(Graph::new("T4"), None, None),
+                    JoinFieldParsed::new(Graph::new("T5"), None, None),
+                ]),
+            ]),
+            arguments: vec![Argument {
+                name: "fooArg".to_string(),
+                value: async_graphql_value::Value::from_json(
+                    serde_json::json!({ "fizz": false, "buzz": 12 }),
+                )
+                .unwrap(),
+            }],
+            directives: vec![Directive {
+                name: "barDirective".to_string(),
+                arguments: vec![Argument {
+                    name: "test".to_string(),
+                    value: async_graphql_value::Value::from_json(
+                        serde_json::json!({ "spam": false, "eggs": 12 }),
+                    )
+                    .unwrap(),
+                }],
+            }],
+            is_hidden: false,
+            graph: vec![Graph::new("T1"), Graph::new("T2"), Graph::new("T3")],
+            join_field: vec![
+                JoinFieldParsed::new(Graph::new("T1"), None, None),
+                JoinFieldParsed::new(Graph::new("T2"), None, None),
+                JoinFieldParsed::new(Graph::new("T3"), None, None),
+            ],
+            // TODO: something like that might be useful join_types: vec![(T1, "id"), (T2, "id"), (T3, "id")]
+            field_type: None,
+            parent_type: None,
+        };
         let _ = alogrithm(&field);
     }
 }

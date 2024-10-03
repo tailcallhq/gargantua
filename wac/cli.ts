@@ -6,8 +6,7 @@ import { GeneratedWorkflowTypes } from "github-actions-workflow-ts";
 
 function toYAML(workflow: Partial<GeneratedWorkflowTypes.Workflow>): string {
   const content = yml.dump(workflow, { noRefs: true });
-  const header = `# This file is generated. Do not edit it manually!\n`;
-  return header + content;
+  return content;
 }
 
 async function generateWorkflow() {

@@ -185,7 +185,7 @@ pub struct JoinEnum {
     pub graph: Graph,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Default)]
 pub struct JoinField {
     pub graph: Option<Graph>,
     pub requires: Option<String>,
@@ -194,6 +194,12 @@ pub struct JoinField {
     pub external: Option<bool>,
     pub r#override: Option<String>,
     pub used_overridden: Option<bool>,
+}
+
+impl JoinField {
+    pub fn new(g: Graph) -> Self {
+        Self { graph: Some(g), ..Default::default() }
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

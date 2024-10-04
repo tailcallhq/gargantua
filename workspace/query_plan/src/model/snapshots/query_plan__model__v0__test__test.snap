@@ -1,5 +1,5 @@
 ---
-source: workspace/query_plan/src/model.rs
+source: workspace/query_plan/src/model/v0.rs
 expression: actual
 ---
 Parallel(

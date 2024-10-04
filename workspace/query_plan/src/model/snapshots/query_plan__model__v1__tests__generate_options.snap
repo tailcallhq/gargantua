@@ -1,0 +1,75 @@
+---
+source: workspace/query_plan/src/model/v1.rs
+expression: options
+---
+[
+    Node {
+        traits: Only(
+            "Location",
+        ),
+        data: "test",
+        children: [
+            Node {
+                traits: Only(
+                    "Reviews",
+                ),
+                data: "p",
+                children: [],
+            },
+            Node {
+                traits: Only(
+                    "Location",
+                ),
+                data: "r",
+                children: [],
+            },
+        ],
+    },
+    Node {
+        traits: Only(
+            "Reviews",
+        ),
+        data: "test",
+        children: [
+            Node {
+                traits: Only(
+                    "Reviews",
+                ),
+                data: "p",
+                children: [],
+            },
+            Node {
+                traits: Only(
+                    "Location",
+                ),
+                data: "r",
+                children: [],
+            },
+        ],
+    },
+    Node {
+        traits: All(
+            {
+                "Location",
+                "Reviews",
+            },
+        ),
+        data: "test",
+        children: [
+            Node {
+                traits: Only(
+                    "Reviews",
+                ),
+                data: "p",
+                children: [],
+            },
+            Node {
+                traits: Only(
+                    "Location",
+                ),
+                data: "r",
+                children: [],
+            },
+        ],
+    },
+]

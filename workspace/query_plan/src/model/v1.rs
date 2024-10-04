@@ -1,7 +1,4 @@
-use std::{
-    collections::HashSet,
-    fmt::{self, Debug},
-};
+use std::fmt::{Debug};
 
 use async_graphql_parser::types::{self as Q};
 
@@ -22,7 +19,7 @@ impl<A> Default for TraitSet<A> {
 
 impl<A: Clone + Eq + std::hash::Hash> From<&[A]> for TraitSet<A> {
     fn from(value: &[A]) -> Self {
-        TraitSet::Any(value.iter().cloned().collect())
+        TraitSet::Any(value.to_vec())
     }
 }
 

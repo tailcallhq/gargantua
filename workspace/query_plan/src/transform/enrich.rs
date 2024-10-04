@@ -55,7 +55,8 @@ impl<Value: Clone> Enrich<Value> {
                     .join_types
                     .iter()
                     .filter_map(|jt| {
-                        if jt.key.is_none() || jt.key.as_ref().map_or(false, |_k| false) { // TODO: fix that
+                        if jt.key.is_none() || jt.key.as_ref().map_or(false, |_k| false) {
+                            // TODO: fix that
                             Some(jt.graph.clone())
                         } else {
                             None

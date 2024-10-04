@@ -1,4 +1,7 @@
-use std::collections::HashSet;
+use std::{
+    collections::HashSet,
+    fmt::{self, Debug},
+};
 
 use async_graphql_parser::types::{self as Q};
 
@@ -6,21 +9,20 @@ use crate::error::Error;
 
 #[derive(Debug, Clone)]
 pub enum TraitSet<A> {
-    Any(HashSet<A>),
+    Any(Vec<A>),
     Only(A),
-    All(HashSet<A>),
+    All(Vec<A>),
 }
 
 impl<A> Default for TraitSet<A> {
     fn default() -> Self {
-        TraitSet::Any(HashSet::new())
+        TraitSet::Any(Vec::new())
     }
 }
 
 impl<A: Clone + Eq + std::hash::Hash> From<&[A]> for TraitSet<A> {
     fn from(value: &[A]) -> Self {
-        let set = value.iter().cloned().collect::<HashSet<_>>();
-        TraitSet::Any(set)
+        TraitSet::Any(value.iter().cloned().collect())
     }
 }
 
@@ -112,7 +114,7 @@ mod tests {
                 Node {
                     data: "r",
                     children: vec![],
-                    traits: TraitSet::from(&[location][..]),
+                    traits: TraitSet::from(&[location, reviews][..]),
                 },
             ],
             traits: TraitSet::from(&[location, reviews][..]),
@@ -120,7 +122,7 @@ mod tests {
 
         // Generate options
         let options = parent_node.generate_options();
-
+        assert_eq!(options.len(), 9);
         insta::assert_debug_snapshot!(options);
     }
 }

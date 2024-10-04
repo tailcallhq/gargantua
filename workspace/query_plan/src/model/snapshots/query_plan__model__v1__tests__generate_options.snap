@@ -49,10 +49,10 @@ expression: options
     },
     Node {
         traits: All(
-            {
+            [
                 "Location",
                 "Reviews",
-            },
+            ],
         ),
         data: "test",
         children: [
@@ -66,6 +66,153 @@ expression: options
             Node {
                 traits: Only(
                     "Location",
+                ),
+                data: "r",
+                children: [],
+            },
+        ],
+    },
+    Node {
+        traits: Only(
+            "Location",
+        ),
+        data: "test",
+        children: [
+            Node {
+                traits: Only(
+                    "Reviews",
+                ),
+                data: "p",
+                children: [],
+            },
+            Node {
+                traits: Only(
+                    "Reviews",
+                ),
+                data: "r",
+                children: [],
+            },
+        ],
+    },
+    Node {
+        traits: Only(
+            "Reviews",
+        ),
+        data: "test",
+        children: [
+            Node {
+                traits: Only(
+                    "Reviews",
+                ),
+                data: "p",
+                children: [],
+            },
+            Node {
+                traits: Only(
+                    "Reviews",
+                ),
+                data: "r",
+                children: [],
+            },
+        ],
+    },
+    Node {
+        traits: All(
+            [
+                "Location",
+                "Reviews",
+            ],
+        ),
+        data: "test",
+        children: [
+            Node {
+                traits: Only(
+                    "Reviews",
+                ),
+                data: "p",
+                children: [],
+            },
+            Node {
+                traits: Only(
+                    "Reviews",
+                ),
+                data: "r",
+                children: [],
+            },
+        ],
+    },
+    Node {
+        traits: Only(
+            "Location",
+        ),
+        data: "test",
+        children: [
+            Node {
+                traits: Only(
+                    "Reviews",
+                ),
+                data: "p",
+                children: [],
+            },
+            Node {
+                traits: All(
+                    [
+                        "Location",
+                        "Reviews",
+                    ],
+                ),
+                data: "r",
+                children: [],
+            },
+        ],
+    },
+    Node {
+        traits: Only(
+            "Reviews",
+        ),
+        data: "test",
+        children: [
+            Node {
+                traits: Only(
+                    "Reviews",
+                ),
+                data: "p",
+                children: [],
+            },
+            Node {
+                traits: All(
+                    [
+                        "Location",
+                        "Reviews",
+                    ],
+                ),
+                data: "r",
+                children: [],
+            },
+        ],
+    },
+    Node {
+        traits: All(
+            [
+                "Location",
+                "Reviews",
+            ],
+        ),
+        data: "test",
+        children: [
+            Node {
+                traits: Only(
+                    "Reviews",
+                ),
+                data: "p",
+                children: [],
+            },
+            Node {
+                traits: All(
+                    [
+                        "Location",
+                        "Reviews",
+                    ],
                 ),
                 data: "r",
                 children: [],

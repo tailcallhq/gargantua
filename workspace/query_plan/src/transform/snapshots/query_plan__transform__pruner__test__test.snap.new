@@ -1,0 +1,119 @@
+---
+source: workspace/query_plan/src/transform/pruner.rs
+assertion_line: 171
+expression: pruned_selection_set
+---
+Field {
+    name: "topProducts",
+    alias: None,
+    selections: SelectionSet(
+        [
+            Field {
+                name: "name",
+                alias: None,
+                selections: SelectionSet(
+                    [],
+                ),
+                arguments: [],
+                directives: [],
+                is_hidden: false,
+                graph: [],
+                join_field: [
+                    JoinFieldParsed {
+                        graph: Some(
+                            Graph(
+                                "Product",
+                            ),
+                        ),
+                        requires: None,
+                        provides: None,
+                        type: None,
+                        external: None,
+                        override: None,
+                        used_overridden: None,
+                    },
+                ],
+                field_type: None,
+                parent_type: None,
+            },
+            Field {
+                name: "reviews",
+                alias: None,
+                selections: SelectionSet(
+                    [
+                        Field {
+                            name: "body",
+                            alias: None,
+                            selections: SelectionSet(
+                                [],
+                            ),
+                            arguments: [],
+                            directives: [],
+                            is_hidden: false,
+                            graph: [],
+                            join_field: [
+                                JoinFieldParsed {
+                                    graph: Some(
+                                        Graph(
+                                            "Reviews",
+                                        ),
+                                    ),
+                                    requires: None,
+                                    provides: None,
+                                    type: None,
+                                    external: None,
+                                    override: None,
+                                    used_overridden: None,
+                                },
+                            ],
+                            field_type: None,
+                            parent_type: None,
+                        },
+                    ],
+                ),
+                arguments: [],
+                directives: [],
+                is_hidden: false,
+                graph: [],
+                join_field: [
+                    JoinFieldParsed {
+                        graph: Some(
+                            Graph(
+                                "Reviews",
+                            ),
+                        ),
+                        requires: None,
+                        provides: None,
+                        type: None,
+                        external: None,
+                        override: None,
+                        used_overridden: None,
+                    },
+                ],
+                field_type: None,
+                parent_type: None,
+            },
+        ],
+    ),
+    arguments: [],
+    directives: [],
+    is_hidden: false,
+    graph: [],
+    join_field: [
+        JoinFieldParsed {
+            graph: Some(
+                Graph(
+                    "Product",
+                ),
+            ),
+            requires: None,
+            provides: None,
+            type: None,
+            external: None,
+            override: None,
+            used_overridden: None,
+        },
+    ],
+    field_type: None,
+    parent_type: None,
+}

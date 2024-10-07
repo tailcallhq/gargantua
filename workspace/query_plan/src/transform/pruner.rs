@@ -21,34 +21,60 @@ impl<T: Clone + Default> Transform for Pruner<T> {
         let subgraphs = Self::collect_subgraph(&input);
         let field_to_subgraphs = Self::collect_fields(&input);
         Self::minimum_set_cover(subgraphs, field_to_subgraphs).and_then(|required_subgraphs| {
-            let output = Self::prune_field(input, &required_subgraphs);
+            let output = Self::prune_field(input, &required_subgraphs, None);
             Valid::succeed(output)
         })
     }
 }
 
 impl<T: Clone + Default> Pruner<T> {
-    fn prune_field(field: Field<T>, required_subgraphs: &HashSet<String>) -> Field<T> {
+    /// Prunes a field and its subfields in a two-step process:
+    /// 1. Removes subgraphs not present in the `required_subgraphs` set.
+    /// 2. If there's a common subgraph with the parent, further prunes based on `parent_subgraphs`.
+    ///
+    /// This function recursively applies the pruning process to all nested fields.
+    fn prune_field(
+        field: Field<T>,
+        required_subgraphs: &HashSet<String>,
+        parent_subgraphs: Option<&HashSet<String>>,
+    ) -> Field<T> {
+        let field_subgraphs: HashSet<String> = field
+            .join_field
+            .iter()
+            .filter_map(|sub| sub.graph.as_ref().map(|g| g.as_str().to_string()))
+            .collect();
+
+        let is_common = parent_subgraphs
+            .map(|ps| !field_subgraphs.is_disjoint(ps))
+            .unwrap_or(false);
+
         let pruned_join_field = field
             .join_field
             .into_iter()
             .filter(|sub| {
-                sub.graph
-                    .as_ref()
-                    .map_or(true, |g| required_subgraphs.contains(g.as_str()))
+                sub.graph.as_ref().map_or(true, |g| {
+                    let contains = required_subgraphs.contains(g.as_str());
+                    if is_common {
+                        contains && parent_subgraphs.map_or(true, |ps| ps.contains(g.as_str()))
+                    } else {
+                        contains
+                    }
+                })
             })
             .collect();
 
-        let pruned_selections = field
+        let pruned_fields = field
             .selections
             .iter()
-            .map(|child| Self::prune_field(child.to_owned(), required_subgraphs))
+            .map(|child| {
+                Self::prune_field(child.to_owned(), required_subgraphs, Some(&field_subgraphs))
+            })
             .collect::<Vec<Field<T>>>();
 
         Field {
             name: field.name,
             join_field: pruned_join_field,
-            selections: SelectionSet::new(pruned_selections),
+            selections: SelectionSet::new(pruned_fields),
             ..field
         }
     }
@@ -145,15 +171,38 @@ mod test {
     /// }
     /// with set cover we can figure out that all fields in graph can be easily resolved by
     /// `Product` and `Reviews` subgraphs only. so we can easily prune out the `Unknow` subgraph.
+    ///
+    /// We need another step of pruning.
+    ///
+    /// set cover pruns out subgraphs by looking at global picture but there's one more step that we can do
+    /// reduce the subgraphs, i mean we can prune based on parent's subgraphs.
+    /// eg. reviews [Reviews]
+    ///         body    [Reviews, Unknown]  -> so we can remove the `Unknown`
+    ///         test    [Something]         -> there's no common so keep the `Something` as is.
+    ///
+    ///
+    /// eg.
+    /// topProducts {   [Products]
+    ///     name    [Products]
+    ///     reviews {   [Reviews]
+    ///         body    [Reviews, Unknown]
+    ///     }
+    ///     test    [Unknown]
+    /// }
     #[test]
     fn test() {
         let reviews_subgraph = Graph::new("Reviews");
         let product_subgraph = Graph::new("Product");
         let unknown_subgraph = Graph::new("Unknown");
+        let something_subgraph = Graph::new("Something");
 
         let name: Field<String> =
             Field::new("name".into(), SelectionSet::default()).join_field(vec![
                 JoinFieldParsed::from(JoinField::new(product_subgraph.clone())),
+            ]);
+        let test: Field<String> =
+            Field::new("test".into(), SelectionSet::default()).join_field(vec![
+                JoinFieldParsed::from(JoinField::new(something_subgraph.clone())),
             ]);
         let body: Field<String> =
             Field::new("body".into(), SelectionSet::default()).join_field(vec![
@@ -163,10 +212,13 @@ mod test {
         let reviews = Field::new("reviews".into(), SelectionSet::new(vec![body])).join_field(vec![
             JoinFieldParsed::from(JoinField::new(reviews_subgraph.clone())),
         ]);
-        let base_field = Field::new("topProducts".into(), SelectionSet::new(vec![name, reviews]))
-            .join_field(vec![JoinFieldParsed::from(JoinField::new(
-                product_subgraph.clone(),
-            ))]);
+        let base_field = Field::new(
+            "topProducts".into(),
+            SelectionSet::new(vec![name, reviews, test]),
+        )
+        .join_field(vec![JoinFieldParsed::from(JoinField::new(
+            product_subgraph.clone(),
+        ))]);
 
         let pruned_selection_set = Pruner::new().transform(base_field).to_result().unwrap();
         insta::assert_debug_snapshot!(pruned_selection_set);
